@@ -1,0 +1,216 @@
+/**
+ * @author    Spas Z. Spasov <spas.z.spasov@gmail.com>
+ * @copyright 2019 Spas Z. Spasov
+ * @license   https://www.gnu.org/licenses/gpl-3.0.html GNU General Public License, version 3 (or later)
+ * @home      https://github.com/pa4080/mw-PrivateWikiAccessControl
+ *
+ * This file is a part of the MediaWiki Extension:PrivateWikiAccessControl.
+ * 
+ * This script adds a page to MediaWiki:InternalWhitelist or remove it via a button in the dropdown toolbar 'More'.
+ * The messages are currently available languages: En, Bg, Ru.
+ * 
+ * PrivateWikiAccessControl project is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *
+ * PrivateWikiAccessControl project is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ * References:
+ *  - https://www.mediawiki.org/wiki/Extension:InternalWhitelist
+ *  - https://www.mediawiki.org/wiki/API:Edit
+ *  - https://www.mediawiki.org/wiki/Manual:Interface/JavaScript
+ *  - https://en.wikipedia.org/wiki/Help:Customizing_toolbars
+**/
+
+(function (mw, $) {
+
+	// Definition of the necessary variables.
+	var whitelistMenuItem;
+	var label;
+	var captionPublic;
+	var captionPrivate;
+
+	var currentPageName = mw.config.get('wgPageName');
+	var currentUserLanguage = mw.config.get('wgUserLanguage');
+	var whitelisPageURI = mw.config.get('wgArticlePath').replace('$1', 'MediaWiki:InternalWhitelist?action=raw');
+
+	var wgPWAC = mw.config.get('wgPWAC');
+
+	// If the action is 'view' and the user is logged in, then run the MAIN FUNCTION.
+	if (mw.config.get('wgAction') === 'view' && mw.config.get( 'wgUserId' ) !== null) {
+		generateLabelsCaptionsListEntryEtc();
+		isWhitelisted();
+
+		if ( wgPWAC.WhitelistWalk === 'Add' || wgPWAC.WhitelistWalk === 'add' ) {
+			// Add Pages to the InternalWhitelist while browsing the Wiki
+			addToWhitelist();
+		} else if ( wgPWAC.WhitelistWalk === 'Remove' || wgPWAC.WhitelistWalk === 'remove' ) {
+			// Remove Pages from the InternalWhitelist while browsing the Wiki
+			removeFromWhitelist();
+		}
+	}
+
+	// This is the main function.
+	function isWhitelisted() {
+		$.ajaxSetup({ cache: false });
+
+		$.get(whitelisPageURI, function(data){
+
+			if (data.includes(currentPageName) === true) {
+				publicPageMenuItem();
+
+				$(whitelistMenuItem).click(function () {
+					removeFromWhitelist();
+					privatePageMenuItem();
+					window.location.reload(true); // Avoid some confusions
+				});
+			} else {
+				privatePageMenuItem();
+
+				$(whitelistMenuItem).click(function () {
+					addToWhitelist();
+					publicPageMenuItem();
+					window.location.reload(true); // Avoid some confusions
+				});
+			}
+		});
+	}
+
+	// Generate menu item if the current page belongs to MediaWiki:InternalWhitelist
+	function publicPageMenuItem() {
+		//alert('The page is public!');
+		if (whitelistMenuItem) { whitelistMenuItem.parentNode.removeChild(whitelistMenuItem); }
+		// whitelistMenuItem = mw.util.addPortletLink('p-cactions', '#', '✓ ' + label + ' ', 'ca-pwac-whitelist-manager-public', captionPublic, 'g', '#ca-delete');
+		whitelistMenuItem = mw.util.addPortletLink('p-cactions', '#', label + ' ', 'ca-pwac-whitelist-manager-public', captionPublic, 'g', '#ca-delete');
+
+		/** Require font Awesome integration
+		$('#ca-internal-whitelist-manager a').each(function(){
+		    var html = $(this).html();
+		    html = '<i class="fas fa-check-circle collapsible icon" style="color: #5b93dc;"></i> ' + label;
+			$(this).html(html);
+		});
+		**/
+	}
+
+	// Generate menu item if the current page doesn't belong to MediaWiki:InternalWhitelist
+	function privatePageMenuItem() {
+		//alert('The page is not public.');
+		if (whitelistMenuItem) { whitelistMenuItem.parentNode.removeChild(whitelistMenuItem); }
+		// whitelistMenuItem = mw.util.addPortletLink('p-cactions', '#', '✗ ' + label + ' ', 'ca-pwac-whitelist-manager-private', captionPrivate, 'g', '#ca-delete');
+		whitelistMenuItem = mw.util.addPortletLink('p-cactions', '#', label + ' ', 'ca-pwac-whitelist-manager-private', captionPrivate, 'g', '#ca-delete');
+
+		/** Require font Awesome integration
+		$('#ca-internal-whitelist-manager a').each(function(){
+		    var html = $(this).html();
+		    html = '<i class="far fa-check-circle collapsible icon" style="color: #5b93dc;"></i> ' + label;
+			$(this).html(html);
+		});
+		**/
+	}
+
+	// Generate the menu item label, depending on the user's language.
+	function generateLabelsCaptionsListEntryEtc() {
+		/**
+		 * Internal translation
+		 *
+		switch(currentUserLanguage) {
+		  case "bg":
+		  	//label          = 'Досъп';
+		  	captionPublic  = 'Направи статията публична';
+		  	captionPrivate = 'Направи статията частна';
+		  	//fileMatchWord  = 'Файл';
+		  	break;
+		  case "ru":
+		  	//label          = 'Доступ';
+		  	captionPublic  = 'Сделайте статью общедоступной';
+		  	captionPrivate = 'Сделайте статью приватной';
+		  	//fileMatchWord  = 'File';
+		  	break;
+		  default: // "English"
+			//label          = 'Access';
+			captionPublic  = 'Make the article public';
+			captionPrivate = 'Make the article private';
+			//fileMatchWord  = 'File';
+		}
+		**/
+
+		label = mw.message( 'pwac-menu-label' ).text();
+		captionPublic  = mw.message( 'pwac-menu-alt-public' ).text();
+		captionPrivate = mw.message( 'pwac-menu-alt-private' ).text();
+		currentPageNameInWhitelistEntry = '* [[:' + currentPageName + ']]';
+
+	}
+
+	function addToWhitelist() {
+		$.get(whitelisPageURI, function(data){
+			if (data.includes(currentPageName) === false) {
+
+				var params = {
+					action: 'edit',
+					title: 'MediaWiki:InternalWhitelist',
+					section: 'new',
+					appendtext: currentPageNameInWhitelistEntry,
+					format: 'json'
+				},
+				api = new mw.Api();
+
+				api.postWithToken('csrf', params).done(function (data) {
+					console.log(data);
+				});
+			}
+		});
+	}
+
+	function removeFromWhitelist() {
+		$.get(whitelisPageURI, function(data){
+			// Catch all cases: if the entry is found one or many times,
+			// at the beginning, at the end or at the middle of the list.
+			// Also when the syntaxis of the blocks is correct or not.
+
+			if (data.includes(currentPageNameInWhitelistEntry + '\n\n') === true) {
+				while (data.includes(currentPageNameInWhitelistEntry + '\n\n') === true) {
+					data = data.replace(currentPageNameInWhitelistEntry + '\n\n', '');
+				}
+			}
+			if (data.includes(currentPageNameInWhitelistEntry + '\n') === true) {
+				while (data.includes(currentPageNameInWhitelistEntry + '\n') === true) {
+					data = data.replace(currentPageNameInWhitelistEntry + '\n', '');
+				}
+			}
+			if (data.includes('\n\n' + currentPageNameInWhitelistEntry) === true) {
+				while (data.includes('\n\n' + currentPageNameInWhitelistEntry) === true) {
+					data = data.replace('\n\n' + currentPageNameInWhitelistEntry, '');
+				}
+			}
+			if (data.includes('\n' + currentPageNameInWhitelistEntry) === true) {
+				while (data.includes('\n' + currentPageNameInWhitelistEntry) === true) {
+					data = data.replace('\n' + currentPageNameInWhitelistEntry, '');
+				}
+			}
+			if (data.includes('' + currentPageNameInWhitelistEntry) === true) {
+				while (data.includes('' + currentPageNameInWhitelistEntry) === true) {
+					data = data.replace('' + currentPageNameInWhitelistEntry, '');
+				}
+			}
+
+			var params = {
+				action: 'edit',
+				title: 'MediaWiki:InternalWhitelist',
+				text: data,
+				format: 'json'
+			},
+			api = new mw.Api();
+
+			api.postWithToken('csrf', params).done(function (data) {
+				console.log(data);
+			});
+		});
+	}
+
+}(mediaWiki, jQuery));
+
