@@ -20,11 +20,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
- * References:
- *  - https://www.mediawiki.org/wiki/Extension:InternalWhitelist
- *  - https://www.mediawiki.org/wiki/API:Edit
- *  - https://www.mediawiki.org/wiki/Manual:Interface/JavaScript
- *  - https://en.wikipedia.org/wiki/Help:Customizing_toolbars
 **/
 
 (function (mw, $) {
@@ -83,67 +78,27 @@
 
 	// Generate menu item if the current page belongs to MediaWiki:InternalWhitelist
 	function publicPageMenuItem() {
-		//alert('The page is public!');
 		if (whitelistMenuItem) { whitelistMenuItem.parentNode.removeChild(whitelistMenuItem); }
-		// whitelistMenuItem = mw.util.addPortletLink('p-cactions', '#', '✓ ' + label + ' ', 'ca-pwac-whitelist-manager-public', captionPublic, 'g', '#ca-delete');
+	
 		whitelistMenuItem = mw.util.addPortletLink('p-cactions', '#', label + ' ', 'ca-pwac-whitelist-manager-public', captionPublic, 'g', '#ca-delete');
-
-		/** Require font Awesome integration
-		$('#ca-internal-whitelist-manager a').each(function(){
-		    var html = $(this).html();
-		    html = '<i class="fas fa-check-circle collapsible icon" style="color: #5b93dc;"></i> ' + label;
-			$(this).html(html);
-		});
-		**/
 	}
 
 	// Generate menu item if the current page doesn't belong to MediaWiki:InternalWhitelist
 	function privatePageMenuItem() {
-		//alert('The page is not public.');
 		if (whitelistMenuItem) { whitelistMenuItem.parentNode.removeChild(whitelistMenuItem); }
-		// whitelistMenuItem = mw.util.addPortletLink('p-cactions', '#', '✗ ' + label + ' ', 'ca-pwac-whitelist-manager-private', captionPrivate, 'g', '#ca-delete');
+		
 		whitelistMenuItem = mw.util.addPortletLink('p-cactions', '#', label + ' ', 'ca-pwac-whitelist-manager-private', captionPrivate, 'g', '#ca-delete');
-
-		/** Require font Awesome integration
-		$('#ca-internal-whitelist-manager a').each(function(){
-		    var html = $(this).html();
-		    html = '<i class="far fa-check-circle collapsible icon" style="color: #5b93dc;"></i> ' + label;
-			$(this).html(html);
-		});
-		**/
 	}
 
 	// Generate the menu item label, depending on the user's language.
 	function generateLabelsCaptionsListEntryEtc() {
-		/**
-		 * Internal translation
-		 *
-		switch(currentUserLanguage) {
-		  case "bg":
-		  	//label          = 'Досъп';
-		  	captionPublic  = 'Направи статията публична';
-		  	captionPrivate = 'Направи статията частна';
-		  	//fileMatchWord  = 'Файл';
-		  	break;
-		  case "ru":
-		  	//label          = 'Доступ';
-		  	captionPublic  = 'Сделайте статью общедоступной';
-		  	captionPrivate = 'Сделайте статью приватной';
-		  	//fileMatchWord  = 'File';
-		  	break;
-		  default: // "English"
-			//label          = 'Access';
-			captionPublic  = 'Make the article public';
-			captionPrivate = 'Make the article private';
-			//fileMatchWord  = 'File';
-		}
-		**/
-
+		// Read the interface labels from MediaWiki:messages-pages
 		label = mw.message( 'pwac-menu-label' ).text();
 		captionPublic  = mw.message( 'pwac-menu-alt-public' ).text();
 		captionPrivate = mw.message( 'pwac-menu-alt-private' ).text();
-		currentPageNameInWhitelistEntry = '* [[:' + currentPageName + ']]';
 
+		// Contrukt Whitelist entry based on the current page name.
+		currentPageNameInWhitelistEntry = '* [[:' + currentPageName + ']]';
 	}
 
 	function addToWhitelist() {
@@ -213,4 +168,3 @@
 	}
 
 }(mediaWiki, jQuery));
-

@@ -78,8 +78,7 @@ class PrivateWikiAccessControlHooks {
         $PWAC_WhitelistArray = explode("\n", $PWAC_WhitelistText);
 
         foreach ($PWAC_WhitelistArray as $entry) {
-            // Find lines starting with one or more `*`, preceeded by zero or more whitespaces
-            // $has_match = preg_match('#^((?!^=|^//|^__|^ |^\#).)*$#', $entry, $matches);
+            // Find lines starting with one or more `*`, preceded by zero or more whitespaces
             $has_match = preg_match('#^\*+.*$#', $entry, $matches);
             if ($has_match == 1) {
                 $entry = preg_replace('/(\[\[|\]\])/', '', $entry);
@@ -106,8 +105,7 @@ class PrivateWikiAccessControlHooks {
         $PWAC_WhitelistApiArray = explode("\n", $PWAC_WhitelistApiText);
 
         foreach ($PWAC_WhitelistApiArray as $entry) {
-            // Find lines that doesn't starting with '==' or '===' or '//'
-            // $has_match = preg_match('#^((?!^=|^//|^__|^ |^\#).)*$#', $entry, $matches);
+            // Find lines starting with one or more `*`, preceded by zero or more whitespaces
             $has_match = preg_match('#^\*+.*$#', $entry, $matches);
             if ($has_match == 1) {
                 $entry = trim(trim($entry, "*"));
@@ -132,7 +130,6 @@ class PrivateWikiAccessControlHooks {
         /**
          * Add the JavaScript menu interface element
         **/
-
         $out->addLink( array(
                 'rel' => 'stylesheet',
                 'id' => 'FontAwesome',
@@ -152,6 +149,7 @@ class PrivateWikiAccessControlHooks {
     public static function onResourceLoaderGetConfigVars( array &$vars ) {
         global $wgPWAC;
 
+        // Forward some PHP variables to the JavaScript environment
         $vars['wgPWAC'] = [
             'WhitelistWalk' => $wgPWAC['WhitelistWalk']
         ];
