@@ -245,7 +245,14 @@ The Apache's configuration must be made at the Virtual Host level, this is becau
 
 All used directives and rules are well described within the example, so I think no more explanations are needed at this stage.
 
-If it is MediaWiki Family you need to create such configuration for each of the wikis.
+If it is MediaWiki Family you need to create such configuration for each wiki.
+
+You can send requests directly to `/wl.api.php`. For example within my wikis I'm using [Extension:ExternalData](https://www.mediawiki.org/wiki/Extension:External_Data) in the following way:
+
+````json
+{{#get_web_data: url=/wl.api.php?action=query&titles=File%3AЕгипет_1.jpg&prop=imageinfo&iiprop=size&format=json|format=JSON|data=ext_height=height,ext_width=width}} 
+Dimensions: {{#external_value:ext_width}} x {{#external_value:ext_height}}
+````
 
 ## Created files
 
