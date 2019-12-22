@@ -54,7 +54,7 @@ It is no longer possible (I think since MW 1.33) to change the value of `$wgWhit
 
 When `MediaWiki:InternalWhitelist` is read, all lines that doesn't start with one or more wildcards (`* Page_name`) will be ignored. Sou you can add comments and headings inside that page.
 
-The **Extension:PrivateWikiAccessControl** is equipped with the script **`PrivateWikiAccessControlManager.js`** that adds an menu item within the dropdown menu `<More>`. Note you may need to load a new page in order to apply and see the changes.
+The **Extension:PrivateWikiAccessControl** is equipped with the script **`PrivateWikiAccessControlManager.js`** that adds an menu item within the dropdown menu `<More>`. So you can add or remove any page to the whitelistst by click on that menu item. Note you may need to load a new page in order to apply and see the changes.
 
 ![Menu More Example](.readme-images/more-menu-item.png)
 
