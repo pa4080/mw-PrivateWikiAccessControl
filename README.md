@@ -8,7 +8,7 @@ Before we begin, let's talk about what actually happens when you [make your wiki
 
 2. Your files (images, pdfs, etc.) will be accessible for anyone who have their full URL.
 
-3. Your MediaWiki API will deny access to any data unless you authenticate yourself. Thus the users that are not logged in can't get any data, no matter certain page is whitelisted or not - i.e. the Extension:CategoryTree (and some other extensions) will not work on the pages that you've decided to be whitelisted.
+3. Your MediaWiki's API will deny access to any data unless you authenticate yourself. Thus the users that are not logged in can't get any data, no matter certain page is whitelisted or not - i.e. the Extension:CategoryTree (and some other extensions) will not work on the pages that you've decided to be whitelisted.
 
 In order to provide more control in all of these aspects here wi will apply the following components:
 
@@ -54,7 +54,7 @@ It is no longer possible (I think since MW 1.33) to change the value of `$wgWhit
 
 When `MediaWiki:InternalWhitelist` is read, all lines that doesn't start with one or more wildcards (`* Page_name`) will be ignored. Sou you can add comments and headings inside that page.
 
-The **Extension:PrivateWikiAccessControl** is equipped with the script **`PrivateWikiAccessControlManager.js`** that adds an menu item within the dropdown menu `<More>`. So you can add or remove any page to the whitelistst by click on that menu item. Note you may need to load a new page in order to apply and see the changes.
+The **Extension:PrivateWikiAccessControl** is equipped with the script **`PrivateWikiAccessControlManager.js`** that adds an menu item within the dropdown menu `<More>`. So you can add (or remove) any page to the whitelistst by click on that menu item. Note you may need to load a new page in order to apply and see the changes.
 
 ![Menu More Example](.readme-images/more-menu-item.png)
 
@@ -92,9 +92,9 @@ You can use `$wgPWAC['WhitelistWalk'] = 'add/remove';` within `LocalSettings.php
 
 The content of the page `MediaWiki:InternalWhitelistAPI` will be stored as serialized array in the file `$IP/cache/PWAC_WhitelistApi.txt`. These entries will be used by `PrivateWikiAccessControl.api.php` as filter of allowed API requests. How to redirect some requests to that API will be described in the section "Apache2 Setup".
 
-When `MediaWiki:InternalWhitelistAPI` is read, all lines that doesn't start with one or more wildcards (`* action=query&...`) will be ignored. Sou you can add comments and headings inside that page.
+When `MediaWiki:InternalWhitelistAPI` is read, all lines that doesn't start with one or more wildcards will be ignored (`* action=query&...`). Sou you can add comments and headings inside that page.
 
-You need to create that page `MediaWiki:InternalWhitelistAPI` manually. Otherwise when the page is not created (or it is empty) all API requests will be allowed. You are able to allow all API requests also by adding the entry `* Allow All` in `MediaWiki:InternalWhitelistAPI`, this is good option for test purposes. Example content of `MediaWiki:InternalWhitelistAPI`:
+You need to create the page `MediaWiki:InternalWhitelistAPI` manually. Otherwise when the page is not created (or it is empty) all API requests will be allowed. You are able to allow all API requests also by adding the entry `* Allow All` in `MediaWiki:InternalWhitelistAPI`, this is good option for test purposes. Example content of `MediaWiki:InternalWhitelistAPI`:
 
 ````text
 __NOTOC__
@@ -121,7 +121,7 @@ __NOTOC__
 
 ![MediaWiki:InternalWhitelist Example](.readme-images/internal-whitelist-api-example.png)
 
-By default `PrivateWikiAccessControl.api.php` will write the log file `$IP/cache/PWAC_Api.log` that contains all API queries made to it (the maximum size of the log file is 100 Kb). By the following command you can debug which API requests you want to whitelist.
+By default `PrivateWikiAccessControl.api.php` will write the log file `$IP/cache/PWAC_Api.log` that contains all API requests made to it (the maximum size of the log file is 100 Kb). By the following command you can debug which API requests you want to whitelist.
 
 ````bash
 tail -F ../../cache/PWAC_Api.log
@@ -131,7 +131,7 @@ If you want to disable logging you can add `$wgPWAC['WhitelistApiLog'] = 'disabl
 
 ### $wgPWAC[] > PWAC_Conf.txt
 
-In the beginning of `PrivateWikiAccessControl.hooks.php` you can see all possible parameters that can be tweak from within `LocalSettings.php`. At all, the parameters that you need to set are:
+In the beginning of `PrivateWikiAccessControl.hooks.php` you can see all possible parameters that could be tweaked from within `LocalSettings.php`. At all, the parameters that you need to set are:
 
 ````php
 // API:PrivateWikiAccessControl Settings
@@ -174,7 +174,7 @@ The file `PWAC_Conf.txt` is used by `PrivateWikiAccessControl.api.php`, thus the
     $wgPWAC['WhitelistApiPass'] = '...the.password.of.the.bot...';
     ````
 
-    In oder to authenticate itself to the MediaWiki API, our Whitelist API will write and use an authentication cookie in the file `$IP/cache/PWAC_Api.cookie`. For more details [MW:API:Login](https://www.mediawiki.org/wiki/API:Login).
+    In oder to authenticate itself to the MediaWiki's API, our Whitelist API will write and use an authentication cookie in the file `$IP/cache/PWAC_Api.cookie`. For more details [MW:API:Login](https://www.mediawiki.org/wiki/API:Login).
 
 ## Apache2 Setup
 
@@ -186,7 +186,7 @@ The Apache's configuration must be made at the Virtual Host level, this is becau
     # Other configuration directives...
 
     # Define variables for 'DocumentRoot' and the wiki's database name,
-    # because thy will be used several times
+    # because thy will be used few times.
     #
     Define wikiDocumentRoot "/var/www/your.wiki.document.root.directory"
     Define wikiDBName "your_wiki_db_name"
@@ -201,14 +201,15 @@ The Apache's configuration must be made at the Virtual Host level, this is becau
     # PrivateWikiAccessControl implementation
     #
     # '${wikiDBName}' - is the database name of this wiki, it is used as cookie parameter.
-    # 'action=(categorytree|query&format|query&titles)' - regex of whitelisted api queries.
+    # 'action=(categorytree|query&format|query&titles)' - regex of whitelisted API requests.
     #
-    # "/wl.api.php" - the url of our Whitelist API where the anonymous user's requests will be redirected
-    # "/mw.api.php" - the url of MediaWiki API where our Whitelist API will make the requests
+    # "/wl.api.php" - the url of Whitelist API where the anonymous user's requests will be redirected.
+    # "/mw.api.php" - the url of MediaWiki's API where our Whitelist API will do its requests.
     #
-    # The expression '${wikiDBName}UserName=[a-zA-Z0-9]+;.*${wikiDBName}UserID=[1-9]+' will match to the cookie
-    # of the logged in users. So '!${wikiDBName}UserName=...' will match to the users that are not logged in.
-    # This is the main trigger of the request redirections made by anonymous users.
+    # The expression '${wikiDBName}UserName=[a-zA-Z0-9]+;.*${wikiDBName}UserID=[1-9]+' will match
+    # to the cookie of the logged in users.
+    # So '!${wikiDBName}UserName=...' will match to the users that are not logged in.
+    # This is the main trigger of the request's redirections made by anonymous users.
 
     Alias "/mw.api.php" "${wikiDocumentRoot}/api.php"
     Alias "/wl.api.php" "${wikiDocumentRoot}/extensions/PrivateWikiAccessControl/PrivateWikiAccessControl.api.php"
@@ -217,14 +218,14 @@ The Apache's configuration must be made at the Virtual Host level, this is becau
         RewriteEngine On
 
         # Redirect ony certain requests 'action=(categorytree|query&format|query&titles)' to our Whitelist API.
-        # This is additional security lair, that works independently of MediaWiki:InternalWhitelistAPI
+        # This is additional security layer, that works independently of MediaWiki:InternalWhitelistAPI.
         #
         RewriteCond %{HTTP_COOKIE} !${wikiDBName}UserName=[a-zA-Z0-9]+;.*${wikiDBName}UserID=[1-9]+ [NC]
         RewriteCond %{QUERY_STRING} (?:^|&)action=(categorytree|query&format|query&titles|opensearch&format)(?:$|&|=)
         RewriteRule "^/api\.php(.*)$" "/wl.api.php$1" [R]
 
         # Redirect all requests made by anonymous users to our Whitelist API.
-        # Debug/test alternative of the above rules.
+        # Debug/test/permanent alternative of the above rules.
         #
         #RewriteCond %{HTTP_COOKIE} !${wikiDBName}UserName=[a-zA-Z0-9]+;.*${wikiDBName}UserID=[1-9]+ [NC]
         #RewriteRule "^/api\.php(.*)$" "/wl.api.php$1" [R]
@@ -249,8 +250,8 @@ If it is MediaWiki Family you need to create such configuration for each wiki.
 
 You can send requests directly to `/wl.api.php`. For example within my wikis I'm using [Extension:ExternalData](https://www.mediawiki.org/wiki/Extension:External_Data) in the following way:
 
-````json
-{{#get_web_data: url=/wl.api.php?action=query&titles=File%3AЕгипет_1.png&prop=imageinfo&iiprop=size&format=json|format=JSON|data=ext_height=height,ext_width=width}} 
+````text
+{{#get_web_data: url=/wl.api.php?action=query&titles=File%3ASome_image.png&prop=imageinfo&iiprop=size&format=json|format=JSON|data=ext_height=height,ext_width=width}} 
 Dimensions: {{#external_value:ext_width}} x {{#external_value:ext_height}}
 ````
 
@@ -268,7 +269,7 @@ As it is explained above, the extension creates and uses the following files in 
 
 5. `$IP/cache/PWAC_Api.log` debug log written by our Whitelist API.
 
-## Hooks 
+## Hooks in use
 
 * [ResourceLoaderGetConfigVars](https://www.mediawiki.org/wiki/Manual:Hooks/ResourceLoaderGetConfigVars)
 
