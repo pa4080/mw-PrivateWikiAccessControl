@@ -295,3 +295,8 @@ As it is explained above, the extension creates and uses the following files in 
 
 * The general idea for internal whitelisting is adopted from the MediaWiki's [Extension:InternalWhitelist](https://www.mediawiki.org/wiki/Extension:InternalWhitelist).
 * The icons used by the extension are stolen from [FontAwesome](https://fontawesome.com/icons?d=gallery&q=check).
+
+## Updates
+
+* I will issue a branch of this extension after each MediaWiki's branch that I'm following on my production or test environment.
+* After a branch is issued I do no intent to apply further edits to it, so most recent updates will be available in the master branch of this repository.
