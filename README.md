@@ -16,7 +16,7 @@ In order to provide more control in all of these aspects here wi will apply the 
 
 2. **Whitelist API**, that comes with the Extension:PrivateWikiAccessControl and will handle the API requests made by not logged in users, also will allow access only to the whitelisted files (images, pdfs, etc.).
 
-3. Additional **Apache2's Virtual Host Configuration**, that will allow you to manage the users request depending they are logged in or not.
+3. Additional **Apache2's Virtual Host Configuration**, that will allow you to manage the users request depending on the users are logged in or not.
 
 ## Extension:PrivateWikiAccessControl
 
@@ -44,11 +44,11 @@ $wgPWAC['WhitelistApiPass'] = '...the.password.of.the.bot...';
 # $wgPWAC['WhitelistApiLog'] = 'disable';  // only this value is acceptable
 ````
 
-When it is enabled, the **Extension:PrivateWikiAccessControl** will read the MediaWiki message pages `MediaWiki:InternalWhitelist` and `MediaWiki:InternalWhitelistAPI` and on their base base will generate two arrays stored in the wiki's cache directory (so it must be writable by the Apache's user `www-data`). The extension will create and a third file where the configuration array `$wgPWAC[]` will be stored. These files will be overwritten only when a new entry (within the mentioned places) is made.
+When it is enabled, the **Extension:PrivateWikiAccessControl** will read the MediaWiki message pages `MediaWiki:InternalWhitelist` and `MediaWiki:InternalWhitelistAPI` and on their base will generate two arrays stored in the wiki's cache directory (so it must be writable by the Apache's user `www-data`). The extension will create and a third file where the configuration array `$wgPWAC[]` will be stored. These files will be overwritten only when a new entry (within the mentioned places) is made.
 
 ### MediaWiki:InternalWhitelist > $IP/cache/PWAC_WhitelistPages.txt
 
-The content of the page `MediaWiki:InternalWhitelist` will be stored as serialized array in the file `$IP/cache/PWAC_WhitelistPages.txt`. After that, when some page is loaded the content of this file will be assigned to `$wgWhitelistRead`. Thus your pages will be whitelisted.
+The content of the page `MediaWiki:InternalWhitelist` will be stored as serialized array in the file `$IP/cache/PWAC_WhitelistPages.txt`. After that, when some page is loaded the content of this file will be assigned to `$wgWhitelistRead` via `Localsettings.php`. Thus your pages will be whitelisted.
 
 It is no longer possible (I think since MW 1.33) to change the value of `$wgWhitelistRead` within an extension and this is the reason why the [Extension:InternalWhitelist](https://www.mediawiki.org/wiki/Extension:InternalWhitelist) no longer works.
 
@@ -56,7 +56,7 @@ When `MediaWiki:InternalWhitelist` is read, all lines that doesn't start with on
 
 The **Extension:PrivateWikiAccessControl** is equipped with the script **`PrivateWikiAccessControlManager.js`** that adds an menu item within the dropdown menu `<More>`. Note you may need to load a new page in order to apply and see the changes.
 
-![Menu More Example](.readme-images/more-menu-item.jpg)
+![Menu More Example](.readme-images/more-menu-item.png)
 
 When the page `MediaWiki:InternalWhitelist` doesn't exist the script will create it automatically.
 
@@ -81,10 +81,10 @@ You can edit `MediaWiki:InternalWhitelist` manually but you need to use the synt
 
 * [[:Some_page]]
 
-* [[:File:Some_image.jpg]]
+* [[:File:Some_image.png]]
 ````
 
-![MediaWiki:InternalWhitelist Example](.readme-images/internal-whitelist-example.jpg)
+![MediaWiki:InternalWhitelist Example](.readme-images/internal-whitelist-example.png)
 
 You can use `$wgPWAC['WhitelistWalk'] = 'add/remove';` within `LocalSettings.php` in order to *add* (or *remove*) pages to the whitelist while browsing your wiki.
 
@@ -119,7 +119,7 @@ __NOTOC__
 //* Allow All
 ````
 
-![MediaWiki:InternalWhitelist Example](.readme-images/internal-whitelist-api-example.jpg)
+![MediaWiki:InternalWhitelist Example](.readme-images/internal-whitelist-api-example.png)
 
 By default `PrivateWikiAccessControl.api.php` will write the log file `$IP/cache/PWAC_Api.log` that contains all API queries made to it (the maximum size of the log file is 100 Kb). By the following command you can debug which API requests you want to whitelist.
 
@@ -145,7 +145,7 @@ The options `$wgPWAC['WhitelistWalk']` and `$wgPWAC['WhitelistApiLog']` are desc
 
 `$wgPWAC['WhitelistApiUser']` and `$wgPWAC['WhitelistApiPass']` are required! Otherwise our API can't authenticate ot the MediaWiki's API and the mechanism will not work at all. For user and password you can fill the authentication data of any user, but according to our needs, I will recommend you to use [`Special:BotPasswords`](https://www.mediawiki.org/wiki/Manual:Bot_passwords) in order to create a Bot with *Basic rights* (which is able only to read dat from the API).
 
-![MediaWiki:InternalWhitelist Example](.readme-images/special-bots-example.jpg)
+![MediaWiki:InternalWhitelist Example](.readme-images/special-bots-example.png)
 
 The file `PWAC_Conf.txt` is used by `PrivateWikiAccessControl.api.php`, thus the API will get our settings. Note if wou want to change the path to the cache directory within `LocalSettings.php` (default: `$wgPWAC['CacheDir'] = "$IP/cache";`) you will need to edit the beginning of `PrivateWikiAccessControl.api.php`, otherwise the API can't get our settings.
 
@@ -250,7 +250,7 @@ If it is MediaWiki Family you need to create such configuration for each wiki.
 You can send requests directly to `/wl.api.php`. For example within my wikis I'm using [Extension:ExternalData](https://www.mediawiki.org/wiki/Extension:External_Data) in the following way:
 
 ````json
-{{#get_web_data: url=/wl.api.php?action=query&titles=File%3AЕгипет_1.jpg&prop=imageinfo&iiprop=size&format=json|format=JSON|data=ext_height=height,ext_width=width}} 
+{{#get_web_data: url=/wl.api.php?action=query&titles=File%3AЕгипет_1.png&prop=imageinfo&iiprop=size&format=json|format=JSON|data=ext_height=height,ext_width=width}} 
 Dimensions: {{#external_value:ext_width}} x {{#external_value:ext_height}}
 ````
 
