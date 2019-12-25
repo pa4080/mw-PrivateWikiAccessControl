@@ -84,7 +84,7 @@ if ($wgPWAC['WhitelistApiLog'] && $wgPWAC['WhitelistApiLog'] != 'disable') {
     }
 }
 
-// Hide this API when the query is empty
+// Interrupt when the authentication data is not provided
 if ($wgPWAC['WhitelistApiUser'] === false || $wgPWAC['WhitelistApiPass'] === false) {
     return true;
 }
