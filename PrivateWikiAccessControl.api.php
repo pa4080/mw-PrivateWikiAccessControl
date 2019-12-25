@@ -71,6 +71,10 @@ if ($_GET['imgIWL']) {
     return true;
 }
 
+
+/**
+ * PART 2: API Requests Whitelist Option - Circumstances
+**/
 // Write queries log, clear the log when the file is bigger than 100K
 if ($wgPWAC['WhitelistApiLog'] && $wgPWAC['WhitelistApiLog'] != 'disable') {
 
@@ -104,7 +108,7 @@ if ($PWAC_ApiQueryTest != 'pass') {
 
 
 /**
- * PART 2: API Calls Whitelist Option
+ * PART 2: API Requests Whitelist Option - Action Part
 **/
 $wgPWAC['MediaWikiApiEndPoint']   = Get_mwApiEndPoint($wgPWAC);   // Step 0
 $wgPWAC['MediaWikiApiLoginToken'] = Get_mwApiLoginToken($wgPWAC); // Step 1
@@ -198,4 +202,3 @@ function Do_theApiCall( array $wgPWAC, $mwApiQuery_GET )
     echo $output;
 }
 ?>
-
