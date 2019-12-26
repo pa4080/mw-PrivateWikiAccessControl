@@ -108,7 +108,11 @@ $wgWhitelistRead[] = 'Page_2';
 ````php
 $wgWhitelistRead = array_merge($wgWhitelistRead, array( 'Page_1', 'Page_2', 'Page_etc'));
 ````
-                                                                                                                                         
+
+### MediaWiki:InternalWhitelistCAT > $IP/cache/PWAC_WhitelistPages.txt
+
+...
+
 ### MediaWiki:InternalWhitelistAPI > $IP/cache/PWAC_WhitelistApi.txt
 
 The content of the page `MediaWiki:InternalWhitelistAPI` will be stored as serialized array in the file `$IP/cache/PWAC_WhitelistApi.txt`. These entries will be used by `PrivateWikiAccessControl.api.php` as filter of allowed API requests. How to redirect some requests to that API will be described in the section "Apache2 Setup".
