@@ -67,6 +67,8 @@ When the page `MediaWiki:InternalWhitelist` doesn't exist the script will create
 You can edit `MediaWiki:InternalWhitelist` manually but you need to use the syntax shown below, otherwise the script will not be able to handle your entries. Example content of `MediaWiki:InternalWhitelist`:
 
 ````text
+__NOTOC__
+
 == Whitelist scripts and Special pages ==
 
 * [[:МедияУики:Common.css]]
@@ -122,6 +124,7 @@ You need to create the page `MediaWiki:InternalWhitelistAPI` manually. Otherwise
 
 ````text
 __NOTOC__
+
 == Whitelist MultimediaViewer ==
 
 * action=query&format=json&meta=filerepoinfo
