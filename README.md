@@ -101,8 +101,7 @@ $wgWhitelistRead = unserialize(file_get_contents("$IP/cache/PWAC_WhitelistPages.
 And use one of the following syntaxes:
 
 ````php
-$wgWhitelistRead[] = 'Page_1';
-$wgWhitelistRead[] = 'Page_2';
+$wgWhitelistRead[] = 'Page_1'; $wgWhitelistRead[] = 'Page_2';
 ````
 
 ````php
