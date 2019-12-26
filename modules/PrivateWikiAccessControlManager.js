@@ -29,6 +29,7 @@
 	var label;
 	var captionPublic;
 	var captionPrivate;
+	var currentPageNameInWhitelistEntry;
 
 	var currentPageName = mw.config.get('wgPageName');
 	var currentUserLanguage = mw.config.get('wgUserLanguage');
@@ -56,7 +57,7 @@
 
 		$.get(whitelisPageURI, function(data){
 
-			if (data.includes(currentPageName) === true) {
+			if (data.includes(currentPageNameInWhitelistEntry) === true) {
 				publicPageMenuItem();
 
 				$(whitelistMenuItem).click(function () {
