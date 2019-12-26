@@ -106,6 +106,12 @@ __NOTOC__
 
 * action=query&titles=File
 
+== Whitelist Category Members ==
+
+These requests are used by PrivateWikiAccessControl Category members whitelist option.
+
+* action=query&list=categorymembers
+
 == Whitelist CategoryTree ==
 
 * action=categorytree
@@ -217,11 +223,11 @@ The Apache's configuration must be made at the Virtual Host level, this is becau
     <ifModule mod_rewrite.c>
         RewriteEngine On
 
-        # Redirect ony certain requests 'action=(categorytree|query&format|query&titles)' to our Whitelist API.
+        # Redirect ony certain requests 'action=(categorytree|query&format|query&titles)...' to our Whitelist API.
         # This is additional security layer, that works independently of MediaWiki:InternalWhitelistAPI.
         #
         RewriteCond %{HTTP_COOKIE} !${wikiDBName}UserName=[a-zA-Z0-9]+;.*${wikiDBName}UserID=[1-9]+ [NC]
-        RewriteCond %{QUERY_STRING} (?:^|&)action=(categorytree|query&format|query&titles|opensearch&format)(?:$|&|=)
+        RewriteCond %{QUERY_STRING} (?:^|&)action=(categorytree|query&format|query&titles|opensearch&format|query&list=categorymembers)(?:$|&|=)
         RewriteRule "^/api\.php(.*)$" "/wl.api.php$1" [R]
 
         # Redirect all requests made by anonymous users to our Whitelist API.
