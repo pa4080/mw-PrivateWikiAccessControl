@@ -69,7 +69,7 @@ if (!defined('MEDIAWIKI')) {
     $wgPWAC_Serialized = serialize($wgPWAC);
     $wgPWAC_FromFile = file_get_contents($wgPWAC['ConfigurationFile']);
 
-    // Copare the current and the saved configuration amd save the new configuration if it is needed
+    // Compare the current and the saved configuration and save the new configuration if it is needed
     if ($wgPWAC_Serialized != $wgPWAC_FromFile) {
         file_put_contents($wgPWAC['ConfigurationFile'], $wgPWAC_Serialized, LOCK_EX);
     }
@@ -82,11 +82,13 @@ class PrivateWikiAccessControlHooks {
         global $wgPWAC;
 
         /**
-         * Create an Array of Whitelisted Pages and Categories (optionally)
+         * Create an array of Whitelisted Pages and Categories (optionally)
         **/
+        // Create an array of Whitelisted Pages
         $PWAC_WhitelistText = wfMessage($wgPWAC['WhitelistPages'])->text();
         $PWAC_WhitelistArray = explode("\n", $PWAC_WhitelistText);
 
+        // Process the array of Whitelisted Pages
         foreach ($PWAC_WhitelistArray as $entry) {
             // Find lines starting with one or more `*`, preceded by zero or more whitespaces
             $has_match = preg_match('#^\*+.*$#', $entry, $matches);
@@ -99,20 +101,12 @@ class PrivateWikiAccessControlHooks {
             }
         }
 
-        // $PWAC_WhitelistReadSerialized = serialize($PWAC_WhitelistReadCurrent);
-        // $PWAC_WhitelistReadFromFile = file_get_contents($wgPWAC['WhitelistPagesFile']);
-
-        // // Write the new array values if it is needed
-        // if ($PWAC_WhitelistReadSerialized != $PWAC_WhitelistReadFromFile) {
-        //     file_put_contents($wgPWAC['WhitelistPagesFile'], $PWAC_WhitelistReadSerialized, LOCK_EX);
-        // }
-
-        /**
-         * Create an Array of Whitelisted Categories
-        **/
+        
+        // Create an array of Whitelisted Categories (optionally)
         $PWAC_WhitelistCatText = wfMessage($wgPWAC['WhitelistCat'])->text();
         $PWAC_WhitelistCatArray = explode("\n", $PWAC_WhitelistCatText);
 
+        // If the array of Whitelisted Categories is not empty (optionally)
         if (!empty($PWAC_WhitelistCatArray)) {
             foreach ($PWAC_WhitelistCatArray as $entry) {
                 // Find lines starting with one or more `*`, preceded by zero or more whitespaces
@@ -126,8 +120,7 @@ class PrivateWikiAccessControlHooks {
                     // Whitelist the category itself (probably this must be commentout?)
                     $PWAC_WhitelistReadCurrent[] = $entry;
 
-                //  https://www.mediawiki.org/wiki/API:Categorymembers
-                //  $wgPWAC['WhitelistApiEndPoint'] = $endPoint = "https://wiki.szs.space/wl.api.php";
+                    // $wgPWAC['WhitelistApiEndPoint'] = $endPoint = "https://wiki.szs.space/wl.api.php";
                     $params = [
                         "action" => "query",
                         "list" => "categorymembers",
@@ -154,26 +147,18 @@ class PrivateWikiAccessControlHooks {
             }
         }
 
-
-        // $PWAC_WhitelistReadCatSerialized = serialize($PWAC_WhitelistReadCatCurrent);
-        // $PWAC_WhitelistReadCatFromFile = file_get_contents($wgPWAC['WhitelistCatFile']);
-
-        // // Write the new array values if it is needed
-        // if ($PWAC_WhitelistReadCatSerialized != $PWAC_WhitelistReadCatFromFile) {
-        //     file_put_contents($wgPWAC['WhitelistCatFile'], $PWAC_WhitelistReadCatSerialized, LOCK_EX);
-        // }
-
+        // Prepare the current and the saved Whitelist array for comparison
         $PWAC_WhitelistReadSerialized = serialize($PWAC_WhitelistReadCurrent);
         $PWAC_WhitelistReadFromFile = file_get_contents($wgPWAC['WhitelistPagesFile']);
 
-        // Write the new array values if it is needed
+        // Compare the current and the saved Whitelist array and save the new Whitelist array if it is needed
         if ($PWAC_WhitelistReadSerialized != $PWAC_WhitelistReadFromFile) {
             file_put_contents($wgPWAC['WhitelistPagesFile'], $PWAC_WhitelistReadSerialized, LOCK_EX);
         }
 
 
         /**
-         * Create an Array of Whitelisted Api Requests
+         * Create an array of Whitelisted Api Requests
         **/
         $PWAC_WhitelistApiText = wfMessage($wgPWAC['WhitelistApi'])->text();
         $PWAC_WhitelistApiArray = explode("\n", $PWAC_WhitelistApiText);
@@ -187,7 +172,7 @@ class PrivateWikiAccessControlHooks {
             }
         }
 
-        // Allow all API calls when the list is empty
+        // Allow all API requests when the list is empty
         if (empty($PWAC_WhitelistReadApiCurrent)) {
             $PWAC_WhitelistReadApiCurrent[] = $wgPWAC['WhitelistAllApi'];
         }
