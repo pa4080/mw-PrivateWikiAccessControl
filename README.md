@@ -282,7 +282,7 @@ As it is explained above, the extension creates and uses the following files in 
 | [Manual:Extension Registration](https://www.mediawiki.org/wiki/Manual:Extension_registration) | [Mod Alias](https://httpd.apache.org/docs/2.4/mod/mod_alias.html) |
 | [Manual:Developing Extensions](https://www.mediawiki.org/wiki/Manual:Developing_extensions) | [Mod Rewrite Intro](https://httpd.apache.org/docs/2.4/rewrite/intro.html) |
 | [Manual:Hooks](https://www.mediawiki.org/wiki/Manual:Hooks) | [Mod Rewrite Flags](https://httpd.apache.org/docs/2.4/rewrite/flags.html) |
-| [Manual:Interface](https://www.mediawiki.org/wiki/Manual:Interface) [/JavaScript](https://www.mediawiki.org/wiki/Manual:Interface/JavaScript) | __Not used__ |
+| [Manual:Interface](https://www.mediawiki.org/wiki/Manual:Interface) [/JavaScript](https://www.mediawiki.org/wiki/Manual:Interface/JavaScript) | __Not used:__ |
 | [Manual:Messages API](https://www.mediawiki.org/wiki/Manual:Messages_API) | [Mod Rewrite Rewrite Map](https://httpd.apache.org/docs/2.4/rewrite/rewritemap.html) |
 | [Manual:$wgResourceModules](https://www.mediawiki.org/wiki/Manual:$wgResourceModules) | [Need help setting up a redirect map](https://www.sitepoint.com/community/t/need-help-setting-up-a-redirect-map/39049/2)
 | [ResourceLoader](https://www.mediawiki.org/wiki/ResourceLoader)
