@@ -48,7 +48,11 @@ When it is enabled, the **Extension:PrivateWikiAccessControl** will read the Med
 
 ### MediaWiki:InternalWhitelist > $IP/cache/PWAC_WhitelistPages.txt
 
-The content of the page `MediaWiki:InternalWhitelist` will be stored as serialized array in the file `$IP/cache/PWAC_WhitelistPages.txt`. After that, when some page is loaded the content of this file will be assigned to `$wgWhitelistRead` via `Localsettings.php`. Thus your pages will be whitelisted.
+The content of the page `MediaWiki:InternalWhitelist` will be stored as serialized array in the file `$IP/cache/PWAC_WhitelistPages.txt`. After that, when some page is loaded the content of this file will be assigned to `$wgWhitelistRead` via `Localsettings.php`. Thus, by the following line, your pages will be whitelisted:
+
+````php
+$wgWhitelistRead = unserialize(file_get_contents("$IP/cache/PWAC_WhitelistPages.txt"));
+````
 
 It is no longer possible (I think since MW 1.33) to change the value of `$wgWhitelistRead` within an extension and this is the reason why the [Extension:InternalWhitelist](https://www.mediawiki.org/wiki/Extension:InternalWhitelist) no longer works.
 
@@ -88,6 +92,23 @@ You can edit `MediaWiki:InternalWhitelist` manually but you need to use the synt
 
 You can use `$wgPWAC['WhitelistWalk'] = 'add/remove';` within `LocalSettings.php` in order to *add* (or *remove*) pages to the whitelist while browsing your wiki.
 
+If you need to add some pages to the array `$wgWhitelistRead` manually, within `LocalSettings.php`, do it after the line:
+
+````php
+$wgWhitelistRead = unserialize(file_get_contents("$IP/cache/PWAC_WhitelistPages.txt"));
+```` 
+
+And use one of the following syntaxes:
+
+````php
+$wgWhitelistRead[] = 'Page_1';
+$wgWhitelistRead[] = 'Page_2';
+````
+
+````php
+$wgWhitelistRead = array_merge($wgWhitelistRead, array( 'Page_1', 'Page_2', 'Page_etc'));
+````
+                                                                                                                                         
 ### MediaWiki:InternalWhitelistAPI > $IP/cache/PWAC_WhitelistApi.txt
 
 The content of the page `MediaWiki:InternalWhitelistAPI` will be stored as serialized array in the file `$IP/cache/PWAC_WhitelistApi.txt`. These entries will be used by `PrivateWikiAccessControl.api.php` as filter of allowed API requests. How to redirect some requests to that API will be described in the section "Apache2 Setup".
