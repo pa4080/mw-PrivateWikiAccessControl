@@ -44,7 +44,7 @@ $wgPWAC['WhitelistApiPass'] = '...the.password.of.the.bot...';
 # $wgPWAC['WhitelistApiLog'] = 'disable';  // only this value is acceptable
 ````
 
-When it is enabled, the **Extension:PrivateWikiAccessControl** will read the MediaWiki message pages `MediaWiki:InternalWhitelist` and `MediaWiki:InternalWhitelistAPI` and on their base will generate two arrays stored in the wiki's cache directory (so it must be writable by the Apache's user `www-data`). The extension will create and a third file where the configuration array `$wgPWAC[]` will be stored. These files will be overwritten only when a new entry (within the mentioned places) is made.
+When it is enabled, the **Extension:PrivateWikiAccessControl** will read the MediaWiki message pages `InternalWhitelist`, `InternalWhitelistCAT` and `InternalWhitelistAPI`, and on their base it will generate two arrays stored in the wiki's cache directory (so it must be writable by the Apache's user `www-data`). The extension will store in a file also the configuration array `$wgPWAC[]`. These files will be overwritten only when a new entry (within the mentioned places) is made.
 
 Here we assuming you already have read the [Manual:Preventing Access](https://www.mediawiki.org/wiki/Manual:Preventing_access) and in order to make your wiki private you've added the following lines within yours `LocalSettings.php`:
 
