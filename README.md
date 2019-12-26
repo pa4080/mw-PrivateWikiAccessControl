@@ -289,6 +289,7 @@ As it is explained above, the extension creates and uses the following files in 
 | [Best practices for extensions](https://www.mediawiki.org/wiki/Best_practices_for_extensions)
 | [Extension:Example](https://www.mediawiki.org/wiki/Extension:Example)
 | [API:Main page](https://www.mediawiki.org/wiki/API:Main_page)
+| [API:Categorymembers](https://www.mediawiki.org/wiki/API:Categorymembers)
 | [Help:Customizing Toolbars](https://en.wikipedia.org/wiki/Help:Customizing_toolbars)
 
 ## Credits
