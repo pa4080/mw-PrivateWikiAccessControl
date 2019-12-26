@@ -25,7 +25,7 @@ In order to provide more control in all of these aspects here wi will apply the 
 ````bash
 cd $IP/extensions
 sudo git clone https://github.com/pa4080/mw-PrivateWikiAccessControl.git PrivateWikiAccessControl # HTTPS
-sudo git clone git@github.com:pa4080/mw-PrivateWikiAccessControl.git PrivateWikiAccessControl     # SHH
+sudo git clone git@github.com:pa4080/mw-PrivateWikiAccessControl.git PrivateWikiAccessControl     # SSH
 ````
 
 ### LocalSettings.php Setup
