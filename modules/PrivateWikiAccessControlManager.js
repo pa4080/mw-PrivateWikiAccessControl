@@ -56,7 +56,6 @@
 		$.ajaxSetup({ cache: false });
 
 		$.get(whitelisPageURI, function(data){
-
 			if (data.includes(currentPageNameInWhitelistEntry) === true) {
 				publicPageMenuItem();
 
@@ -104,16 +103,16 @@
 
 	function addToWhitelist() {
 		$.get(whitelisPageURI, function(data){
-			if (data.includes(currentPageName) === false) {
-
+			if (data.includes(currentPageNameInWhitelistEntry) === false) {
 				var params = {
 					action: 'edit',
 					title: 'MediaWiki:InternalWhitelist',
 					section: 'new',
 					appendtext: currentPageNameInWhitelistEntry,
 					format: 'json'
-				},
-				api = new mw.Api();
+				}
+				
+				var api = new mw.Api();
 
 				api.postWithToken('csrf', params).done(function (data) {
 					console.log(data);
@@ -159,8 +158,9 @@
 				title: 'MediaWiki:InternalWhitelist',
 				text: data,
 				format: 'json'
-			},
-			api = new mw.Api();
+			}
+			
+			var api = new mw.Api();
 
 			api.postWithToken('csrf', params).done(function (data) {
 				console.log(data);
