@@ -110,14 +110,15 @@ if ($PWAC_ApiQueryTest != 'pass') {
 /**
  * PART 2: API Requests Whitelist Option - Action Part
 **/
-$wgPWAC['MediaWikiApiEndPoint']   = Get_mwApiEndPoint($wgPWAC);   // Step 0
 $wgPWAC['MediaWikiApiLoginToken'] = Get_mwApiLoginToken($wgPWAC); // Step 1
 Do_theLoginRequest($wgPWAC);      // Step 2
 Do_theApiCall($wgPWAC, $_GET);    // Step 3
 
 /**
- * Step 0: GET the API end point of the current server
-**/
+ * Step 0: GET the API end point of the current server :: Deprecated
+
+   $wgPWAC['MediaWikiApiEndPoint']   = Get_mwApiEndPoint($wgPWAC);   // Step 0
+
 function Get_mwApiEndPoint(array $wgPWAC) {
     $protocol = (!empty($_SERVER['HTTPS']) && (strtolower($_SERVER['HTTPS']) == 'on' || $_SERVER['HTTPS'] == '1')) ? 'https://' : 'http://';
     $server = $_SERVER['SERVER_NAME'];
@@ -125,17 +126,17 @@ function Get_mwApiEndPoint(array $wgPWAC) {
 
     return $protocol.$server.$port.$wgPWAC['MediaWikiApiURI'];
 }
-
+**/
 
 /**
  * Step 1: GET Request to fetch login token
 **/
-function Get_mwApiLoginToken( array $wgPWAC ) 
+function Get_mwApiLoginToken( array $wgPWAC )
 {
     $params1 = [
         "action" => "query",
-        "meta" => "tokens",
-        "type" => "login",
+        "meta"   => "tokens",
+        "type"   => "login",
         "format" => "json"
     ];
 
