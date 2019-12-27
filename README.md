@@ -56,7 +56,7 @@ $wgGroupPermissions['*']['read'] = false;           // Disable reading by anonym
 
 ### MediaWiki:InternalWhitelist > $IP/cache/PWAC_WhitelistPages.txt
 
-The content of the page `MediaWiki:InternalWhitelist` will be stored as serialized array in the file `$IP/cache/PWAC_WhitelistPages.txt`. After that, when some page is loaded the content of this file will be assigned to `$wgWhitelistRead` via `Localsettings.php`. Thus, by the following line, your pages will be whitelisted:
+**Whitelist certain pages.** The content of the page `MediaWiki:InternalWhitelist` will be stored as serialized array in the file `$IP/cache/PWAC_WhitelistPages.txt`. After that, when some page is loaded (via the browser) the content of this file will be assigned to `$wgWhitelistRead` within `Localsettings.php` by the following line - whus your pages will be whitelisted:
 
 ````php
 $wgWhitelistRead = unserialize(file_get_contents("$IP/cache/PWAC_WhitelistPages.txt"));
@@ -120,15 +120,26 @@ $wgWhitelistRead = array_merge($wgWhitelistRead, array( 'Page_1', 'Page_2', 'Pag
 
 ### MediaWiki:InternalWhitelistCAT > $IP/cache/PWAC_WhitelistPages.txt
 
-...
+**Whitelist category member pages.** You can use the wollowing syntax in order to add certain categories within the page `MediaWiki:InternalWhitelistCAT`:
+
+* [[:Category:Example_1]]
+
+* [[:Category:Example_2]]
+
+* [[:Категория:Example_3]]
+
+
+If the page `MediaWiki:InternalWhitelistCAT` exist and it is not epmpty its content willl be procesed: the extension **Extension:PrivateWikiAccessControl** will get the members of each listed category (by using our Whitelist API) and will add these items (members, pages) to the serialized array stored in the file `$IP/cache/PWAC_WhitelistPages.txt`. Thus, when the content of the file is assigned to the array `$wgWhitelistRead` (within `Localsettings.php`) all members of the listed categories will become whitelisted for public access.
+
+When `MediaWiki:InternalWhitelistAPI` is read, all lines that doesn't start with one or more wildcards will be ignored (`* action=query&...`). Sou you can add comments and headings inside that page. You need to create the page `MediaWiki:InternalWhitelistCAT` manually.
 
 ### MediaWiki:InternalWhitelistAPI > $IP/cache/PWAC_WhitelistApi.txt
 
-The content of the page `MediaWiki:InternalWhitelistAPI` will be stored as serialized array in the file `$IP/cache/PWAC_WhitelistApi.txt`. These entries will be used by `PrivateWikiAccessControl.api.php` as filter of allowed API requests. How to redirect some requests to that API will be described in the section "Apache2 Setup".
+**Whitelist certain API requests.** The content of the page `MediaWiki:InternalWhitelistAPI` will be stored as serialized array in the file `$IP/cache/PWAC_WhitelistApi.txt`. These entries will be used by `PrivateWikiAccessControl.api.php` as filter of allowed API requests. How to redirect some requests to that API will be described in the section "Apache2 Setup".
 
 When `MediaWiki:InternalWhitelistAPI` is read, all lines that doesn't start with one or more wildcards will be ignored (`* action=query&...`). Sou you can add comments and headings inside that page.
 
-You need to create the page `MediaWiki:InternalWhitelistAPI` manually. Otherwise when the page is not created (or it is empty) all API requests will be allowed. You are able to allow all API requests also by adding the entry `* Allow All` in `MediaWiki:InternalWhitelistAPI`, this is good option for test purposes. Example content of `MediaWiki:InternalWhitelistAPI`:
+You need to create the page `MediaWiki:InternalWhitelistAPI` manually. Otherwise, when the page is not created (or it is empty), all API requests will be allowed. You are able to allow all API requests also by adding the entry `* Allow All` in `MediaWiki:InternalWhitelistAPI`, this is good option for test purposes. Example content of `MediaWiki:InternalWhitelistAPI`:
 
 ````text
 __NOTOC__
@@ -172,7 +183,7 @@ If you want to disable logging you can add `$wgPWAC['WhitelistApiLog'] = 'disabl
 
 ### $wgPWAC[] > PWAC_Conf.txt
 
-In the beginning of `PrivateWikiAccessControl.hooks.php` you can see all possible parameters that could be tweaked from within `LocalSettings.php`. At all, the parameters that you need to set are:
+**Make the configuration parameters accessible for the Whitelist API.** In the beginning of `PrivateWikiAccessControl.hooks.php` you can see all possible parameters that could be tweaked from within `LocalSettings.php`. At all, the parameters that you need to set are:
 
 ````php
 // API:PrivateWikiAccessControl Settings
