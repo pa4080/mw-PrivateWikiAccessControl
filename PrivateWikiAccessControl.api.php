@@ -111,6 +111,7 @@ if ($PWAC_ApiQueryTest != 'pass') {
  * PART 2: API Requests Whitelist Option - Action Part
 **/
 $wgPWAC['MediaWikiApiLoginToken'] = Get_mwApiLoginToken($wgPWAC); // Step 1
+//echo $wgPWAC['MediaWikiApiLoginToken'];
 Do_theLoginRequest($wgPWAC);      // Step 2
 Do_theApiCall($wgPWAC, $_GET);    // Step 3
 
@@ -129,8 +130,41 @@ function Get_mwApiEndPoint(array $wgPWAC) {
 **/
 
 /**
- * Step 1: GET Request to fetch login token
+ *Step 1: GET Request to fetch login token--
+ * !!! Currently this step uses the deprecated authentication method (action=login) !!!
+ * !!! This should be fixed in the further versions !!!
+ * !!! https://www.mediawiki.org/wiki/Topic:Vdrava0likcnvy6a !!!
 **/
+function Get_mwApiLoginToken( array $wgPWAC )
+{
+    $params = [
+        "action"     => "login",
+        "format"     => "json"
+    ];
+
+    $url = $wgPWAC['MediaWikiApiEndPoint'] . "?" . http_build_query($params);
+
+    $ch = curl_init();
+
+    curl_setopt($ch, CURLOPT_URL, $wgPWAC['MediaWikiApiEndPoint']);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($params));
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_COOKIEJAR, $wgPWAC['WhitelistApiCookie']);
+    curl_setopt($ch, CURLOPT_COOKIEFILE, $wgPWAC['WhitelistApiCookie']);
+
+    $output = curl_exec($ch);
+
+    curl_close($ch);
+
+    $result = json_decode($output, true);
+
+    return $result["login"]["token"];
+}
+
+/**
+ * Step 1: GET Request to fetch login token
+ *
 function Get_mwApiLoginToken( array $wgPWAC )
 {
     $params1 = [
@@ -139,30 +173,27 @@ function Get_mwApiLoginToken( array $wgPWAC )
         "type"   => "login",
         "format" => "json"
     ];
-
     $url = $wgPWAC['MediaWikiApiEndPoint'] . "?" . http_build_query($params1);
-
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_COOKIEJAR, $wgPWAC['WhitelistApiCookie']);
     curl_setopt($ch, CURLOPT_COOKIEFILE, $wgPWAC['WhitelistApiCookie']);
-
     $output = curl_exec($ch);
     curl_close($ch);
-
     $result = json_decode($output, true);
-
     return $result["query"]["tokens"]["logintoken"];
 }
+**/
 
 /**
  * Step 2: POST Request to log in. Obtain credentials via Special:BotPasswords
  * (https://www.mediawiki.org/wiki/Special:BotPasswords) for lgname & lgpassword
- * !!! This authentication method is deprecated !!!
+ * !!! Currently this step uses the deprecated authentication method (action=login) !!!
+ * !!! This should be fixed in the further versions !!!
 **/
-function Do_theLoginRequest( array $wgPWAC ) 
+function Do_theLoginRequest( array $wgPWAC )
 {
-    $params2 = [
+    $params = [
         "action"     => "login",
         "lgname"     => $wgPWAC['WhitelistApiUser'],
         "lgpassword" => $wgPWAC['WhitelistApiPass'],
@@ -174,7 +205,7 @@ function Do_theLoginRequest( array $wgPWAC )
 
     curl_setopt($ch, CURLOPT_URL, $wgPWAC['MediaWikiApiEndPoint']);
     curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($params2));
+    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($params));
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_COOKIEJAR, $wgPWAC['WhitelistApiCookie']);
     curl_setopt($ch, CURLOPT_COOKIEFILE, $wgPWAC['WhitelistApiCookie']);
@@ -188,7 +219,7 @@ function Do_theLoginRequest( array $wgPWAC )
 /**
  * Step 3: GET Request for a image info
 **/
-function Do_theApiCall( array $wgPWAC, $mwApiQuery_GET ) 
+function Do_theApiCall( array $wgPWAC, $mwApiQuery_GET )
 {
     $url = $wgPWAC['MediaWikiApiEndPoint'] . '?' . http_build_query($mwApiQuery_GET);
 
