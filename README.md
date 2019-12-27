@@ -132,7 +132,7 @@ $wgWhitelistRead = array_merge($wgWhitelistRead, array( 'Page_1', 'Page_2', 'Pag
 
 If the page `MediaWiki:InternalWhitelistCAT` exist and it is not epmpty its content willl be procesed: the extension **Extension:PrivateWikiAccessControl** will get the members of each listed category (by using our Whitelist API) and will add these items (members, pages) to the serialized array stored in the file `$IP/cache/PWAC_WhitelistPages.txt`. Thus, when the content of the file is assigned to the array `$wgWhitelistRead` (within `Localsettings.php`) all members of the listed categories will become whitelisted for public access.
 
-When `MediaWiki:InternalWhitelistAPI` is read, all lines that doesn't start with one or more wildcards will be ignored (`* action=query&...`). Sou you can add comments and headings inside that page. You need to create the page `MediaWiki:InternalWhitelistCAT` manually.
+When `MediaWiki:InternalWhitelistAPI` is read, all lines that doesn't start with one or more wildcards will be ignored (`* [[:Category:...]]`). Sou you can add comments and headings inside that page. You need to create the page `MediaWiki:InternalWhitelistCAT` manually.
 
 ### MediaWiki:InternalWhitelistAPI > $IP/cache/PWAC_WhitelistApi.txt
 
