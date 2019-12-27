@@ -120,7 +120,7 @@ $wgWhitelistRead = array_merge($wgWhitelistRead, array( 'Page_1', 'Page_2', 'Pag
 
 ### MediaWiki:InternalWhitelistCAT > $IP/cache/PWAC_WhitelistPages.txt
 
-**Whitelist category members.** You can use the wollowing syntax in order to add certain categories within the page `MediaWiki:InternalWhitelistCAT`:
+**Whitelist category members.** You can use the wollowing syntax in order to add certain categories within the message page `MediaWiki:InternalWhitelistCAT`:
 
 ````text
 * [[:Category:Example_1]]
@@ -130,9 +130,9 @@ $wgWhitelistRead = array_merge($wgWhitelistRead, array( 'Page_1', 'Page_2', 'Pag
 * [[:Категория:Example_3]]
 ````
 
-If the page `MediaWiki:InternalWhitelistCAT` exist and it is not epmpty its content willl be procesed: the extension **Extension:PrivateWikiAccessControl** will get the members of each listed category (by using our Whitelist API) and will add these items (members, pages) to the serialized array stored in the file `$IP/cache/PWAC_WhitelistPages.txt`. Thus, when the content of the file is assigned to the array `$wgWhitelistRead` (within `Localsettings.php`) all members of the listed categories will become whitelisted for public access.
+If the page `MediaWiki:InternalWhitelistCAT` exist and it is not epmpty its content willl be procesed: the extension **Extension:PrivateWikiAccessControl** will get the members of each listed category (by using our Whitelist API) and will append these items (members, pages) to the serialized array stored in the file `$IP/cache/PWAC_WhitelistPages.txt`. Thus, when the content of the file is assigned to the array `$wgWhitelistRead` (within `Localsettings.php` as it is shown above) all members of the listed categories will become whitelisted for public access.
 
-When `MediaWiki:InternalWhitelistAPI` is read, all lines that doesn't start with one or more wildcards will be ignored (`* [[:Category:...]]`). Sou you can add comments and headings inside that page. You need to create the page `MediaWiki:InternalWhitelistCAT` manually.
+When `MediaWiki:InternalWhitelistCAT` is read, all lines that doesn't start with one or more wildcards will be ignored (`* [[:Category:...]]`). Sou you can add comments and headings inside that page. You need to create the page `MediaWiki:InternalWhitelistCAT` manually.
 
 ### MediaWiki:InternalWhitelistAPI > $IP/cache/PWAC_WhitelistApi.txt
 
