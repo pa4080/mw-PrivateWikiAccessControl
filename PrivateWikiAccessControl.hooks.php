@@ -195,8 +195,6 @@ class PrivateWikiAccessControlHooks {
 	 * because the svg icons are embedded in the CSS code.
 	 * The following historical code snippet should be removed in the next version.
 	 *
-	 *
-	**/
         $out->addLink(array(
                 'rel' => 'stylesheet',
                 'id' => 'FontAwesome',
@@ -204,6 +202,8 @@ class PrivateWikiAccessControlHooks {
                 'integrity' => 'sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay',
                 'crossorigin' => 'anonymous',
         ));
+	 *
+	**/
         $out->addModules('PrivateWikiAccessControlManager');
 
         /**
