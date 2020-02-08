@@ -1,0 +1,7 @@
+{
+	"pwac-desc": "Раширението 'Private Wiki Access Control' предоставя възможност за създаване и поддържане на списък с 'Разрешени (Whitelisted)' статии в именното пространство МедияУики (MediaWiki).",
+	"pwac-menu-label": "Достъп",
+        "pwac-menu-alt-private": "Направи статията частна",
+        "pwac-menu-alt-public": "Направи статията публична"
+}
+

@@ -1,0 +1,7 @@
+{
+	"pwac-desc": "The 'Private Wiki Access Control' extension provides the capability to maintain a listing of 'Whitelisted' articles in the MediaWiki namespace.",
+	"pwac-menu-label": "Access",
+        "pwac-menu-alt-private": "Make the article private",
+        "pwac-menu-alt-public": "Make the article public"
+}
+
