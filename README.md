@@ -25,8 +25,14 @@ In order to provide more control in all of these aspects here wi will apply the 
 ````bash
 cd $IP/extensions
 sudo git clone https://github.com/pa4080/mw-PrivateWikiAccessControl.git PrivateWikiAccessControl # HTTPS
-sudo git clone git@github.com:pa4080/mw-PrivateWikiAccessControl.git PrivateWikiAccessControl     # SHH
+sudo git clone git@github.com:pa4080/mw-PrivateWikiAccessControl.git PrivateWikiAccessControl     # SSH
+
+cd $IP/extensions/PrivateWikiAccessControl
+git branch -a
+sudo git checkout the_desired_branch
 ````
+
+* In order to setup SSH access read: [How do I setup SSH key based authentication for GitHub by using ~/.ssh/config file?](https://askubuntu.com/a/1097078/566421)
 
 ### LocalSettings.php Setup
 
