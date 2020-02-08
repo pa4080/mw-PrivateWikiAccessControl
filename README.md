@@ -32,7 +32,7 @@ git branch -a
 sudo git checkout the_desired_branch
 ````
 
-* In order to setup SSH access read: [How do I setup SSH key based authentication for GitHub by using ~/.ssh/config file?](https://askubuntu.com/a/1097078/566421)
+* In order to setup SSH access read: [How do I setup SSH key based authentication for GitHub by using .ssh/config?](https://askubuntu.com/a/1097078/566421)
 
 ### LocalSettings.php Setup
 
