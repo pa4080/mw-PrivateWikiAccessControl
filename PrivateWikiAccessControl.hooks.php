@@ -188,15 +188,22 @@ class PrivateWikiAccessControlHooks {
 
         /**
          * Add the JavaScript menu interface element
-        **/
-        $out->addLink( array(
+	 *
+         * ResourceLoader doesn't allow for external scripts.
+	 * Ref:	https://www.mediawiki.org/wiki/Topic:Vd6etm1wbin5sryp
+	 * But we do not longer need to load Font Awesome,
+	 * because the svg icons are embedded in the CSS code.
+	 * The following historical code snippet should be removed in the next version.
+	 *
+	 *
+	**/
+        $out->addLink(array(
                 'rel' => 'stylesheet',
                 'id' => 'FontAwesome',
                 'href' => 'https://use.fontawesome.com/releases/v5.8.2/css/all.css',
                 'integrity' => 'sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay',
                 'crossorigin' => 'anonymous',
-        ) );
-
+        ));
         $out->addModules('PrivateWikiAccessControlManager');
 
         /**
