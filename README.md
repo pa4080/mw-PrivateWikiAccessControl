@@ -359,4 +359,4 @@ As it is explained above, the extension creates and uses the following files in 
 ## Updates
 
 * I will issue a branch of this extension after each MediaWiki's branch that I'm following on my production or test environment.
-* After a branch is issued I do no intent to apply further edits to it, so most recent updates will be available in the master branch of this repository.
+* After a branch is issued I do not intent to apply further edits to it, so most recent updates will be available in the master branch of this repository.
