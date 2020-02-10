@@ -279,24 +279,25 @@ The Apache's configuration must be made at the Virtual Host level, this is becau
         # Redirect ony certain requests 'action=(categorytree|query&format|query&titles)...' to our Whitelist API.
         # This is additional security layer, that works independently of MediaWiki:InternalWhitelistAPI.
         #
-        RewriteCond %{HTTP_COOKIE} !${wikiDBName}UserName=[a-zA-Z0-9]+;.*${wikiDBName}UserID=[1-9]+ [NC]
+        RewriteCond %{HTTP_COOKIE} !(${wikiDBName}UserName=[a-zA-Z0-9]+;.*${wikiDBName}UserID=[1-9]+|${wikiDBName}UserID=[1-9]+;.*${wikiDBName}UserName=[a-zA-Z0-9]+) [NC]
         RewriteCond %{QUERY_STRING} (?:^|&)action=(categorytree|query&format|query&titles|opensearch&format|query&list=categorymembers)(?:$|&|=)
         RewriteRule "^/api\.php(.*)$" "/wl.api.php$1" [R]
 
         # Redirect all requests made by anonymous users to our Whitelist API.
         # Debug/test/permanent alternative of the above rules.
         #
-        #RewriteCond %{HTTP_COOKIE} !${wikiDBName}UserName=[a-zA-Z0-9]+;.*${wikiDBName}UserID=[1-9]+ [NC]
+        #RewriteCond %{HTTP_COOKIE} !(${wikiDBName}UserName=[a-zA-Z0-9]+;.*${wikiDBName}UserID=[1-9]+|${wikiDBName}UserID=[1-9]+;.*${wikiDBName}UserName=[a-zA-Z0-9]+) [NC]
         #RewriteRule "^/api\.php(.*)$" "/wl.api.php$1" [R]
 
         # If the request is for image/file and the requested flie/image belongs to the supported file list,
         # then redirect the request to our Whitelist API, by using GET request '?imgIWL=%{REQUEST_URI}'.
         #
         Define imgIWLAllowed "(ogg|pdf|zip|mpeg|wav|gif|jpeg|jpg|png|tiff|djvu|djv|svg|css|cvs|html|txt|xml|mpg|mpeg|mp4|mkv|avi|qt|wmv|webm)"
-        RewriteCond %{HTTP_COOKIE} !${wikiDBName}UserName=[a-zA-Z0-9]+;.*${wikiDBName}UserID=[1-9]+ [NC]
+        RewriteCond %{HTTP_COOKIE} !(${wikiDBName}UserName=[a-zA-Z0-9]+;.*${wikiDBName}UserID=[1-9]+|${wikiDBName}UserID=[1-9]+;.*${wikiDBName}UserName=[a-zA-Z0-9]+) [NC]
         RewriteCond %{REQUEST_URI} ^/images/
         RewriteRule "\.${imgIWLAllowed}$"  "/wl.api.php?imgIWL=%{REQUEST_URI}" [R]
     </ifModule>
+
 
     # Other configuration directives...
 

@@ -65,7 +65,7 @@ if ($_GET['imgIWL']) {
 
     // Test whether the requested Image is a Resized Version of any Whitelisted Image
     foreach ($wgWhitelistRead as $entry) {
-	if (strpos($imgIWL_Name, end(explode(':', $entry)))) {
+        if (strpos($imgIWL_Name, end(explode(':', $entry)))) {
             // this is an alternative trigger of the next condition
             $imgIWL_Name_OriginalFile = $entry;
         }

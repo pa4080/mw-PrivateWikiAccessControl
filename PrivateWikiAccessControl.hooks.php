@@ -84,6 +84,7 @@ class PrivateWikiAccessControlHooks {
         /**
          * Create an array of Whitelisted Pages and Categories (optionally)
         **/
+        
         // Create an array of Whitelisted Pages
         $PWAC_WhitelistText = wfMessage($wgPWAC['WhitelistPages'])->text();
         $PWAC_WhitelistArray = explode("\n", $PWAC_WhitelistText);
