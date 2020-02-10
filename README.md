@@ -335,6 +335,8 @@ As it is explained above, the extension creates and uses the following files in 
 
 * [BeforePageDisplay](https://www.mediawiki.org/wiki/Manual:Hooks/BeforePageDisplay)
 
+* [ArticleViewHeader](https://www.mediawiki.org/wiki/Manual:Hooks/ArticleViewHeader)
+
 ## References
 
 | MediaWiki | Apache2 |
