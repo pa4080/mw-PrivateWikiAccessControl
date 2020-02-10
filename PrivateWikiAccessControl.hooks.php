@@ -55,6 +55,7 @@ if (!defined('MEDIAWIKI')) {
     $wgPWAC['wgServerMediaWiki']  = (($wgPWAC['wgServerMediaWiki'])  ? $wgPWAC['wgServerMediaWiki']  : $wgServer);
     $wgPWAC['WhitelistWalk']      = (($wgPWAC['WhitelistWalk'])      ? $wgPWAC['WhitelistWalk']      : false);
     $wgPWAC['ConfigurationFile']  = (($wgPWAC['ConfigurationFile'])  ? $wgPWAC['ConfigurationFile']  : $wgPWAC['CacheDir'] . '/PWAC_Conf.txt');
+    $wgPWAC['AutoLoad']           = (($wgPWAC['AutoLoad'])           ? $wgPWAC['AutoLoad']           : false);
 
     // Only the value 'disable' must be accessible as parameter
     if ($wgPWAC['WhitelistApiLog'] != 'disable') {
@@ -81,122 +82,137 @@ class PrivateWikiAccessControlHooks {
 
         global $wgPWAC;
 
-        /**
-         * Create an array of Whitelisted Pages and Categories (optionally)
-        **/
+	$articleTitle  = $article->getTitle();
+	$articleTitle  = end(explode(':', $articleTitle));
+	$allowedTitles = array($wgPWAC['WhitelistPages'], $wgPWAC['WhitelistCat'], $wgPWAC['WhitelistApi']);
 
-        // Create an array of Whitelisted Pages
-        $PWAC_WhitelistText = wfMessage($wgPWAC['WhitelistPages'])->text();
-        $PWAC_WhitelistArray = explode("\n", $PWAC_WhitelistText);
+        if (in_array($articleTitle, $allowedTitles) || $wgPWAC['AutoLoad'] === true) {
 
-        // Process the array of Whitelisted Pages
-        foreach ($PWAC_WhitelistArray as $entry) {
-            // Find lines starting with one or more `*`, preceded by zero or more whitespaces
-            $has_match = preg_match('#^\*+.*$#', $entry, $matches);
-            if ($has_match == 1) {
-                $entry = preg_replace('/(\[\[|\]\])/', '', $entry);
-                $entry = trim(trim($entry, "*"));
-                $entry = preg_replace('/^\:/', '', $entry);
-                $entry = preg_replace("/[\s]/", "_", $entry);
-                $entry = trim($entry);
-                $PWAC_WhitelistReadCurrent[] = $entry;
-            }
-        }
+            /**
+             * Create an array of Whitelisted Pages and Categories
+            **/
 
-        // Create an array of Whitelisted Categories (optionally)
-        $PWAC_WhitelistCatText = wfMessage($wgPWAC['WhitelistCat'])->text();
-        $PWAC_WhitelistCatArray = explode("\n", $PWAC_WhitelistCatText);
+            // Create an array of Whitelisted Pages
+            $PWAC_WhitelistText = wfMessage($wgPWAC['WhitelistPages'])->text();
+            $PWAC_WhitelistArray = explode("\n", $PWAC_WhitelistText);
 
-        // If the array of Whitelisted Categories is not empty (optionally)
-        if (!empty($PWAC_WhitelistCatArray)) {
-            foreach ($PWAC_WhitelistCatArray as $entry) {
+            // Process the array of Whitelisted Pages
+            foreach ($PWAC_WhitelistArray as $entry) {
                 // Find lines starting with one or more `*`, preceded by zero or more whitespaces
                 $has_match = preg_match('#^\*+.*$#', $entry, $matches);
+
                 if ($has_match == 1) {
+                    // Apply some filters
                     $entry = preg_replace('/(\[\[|\]\])/', '', $entry);
                     $entry = trim(trim($entry, "*"));
                     $entry = preg_replace('/^\:/', '', $entry);
                     $entry = preg_replace("/[\s]/", "_", $entry);
                     $entry = trim($entry);
-
-                    // Whitelist the category itself (probably this must be commentout?)
+                    // Add the entry to whitelist
                     $PWAC_WhitelistReadCurrent[] = $entry;
+                }
+            }
 
-                    // $wgPWAC['WhitelistApiEndPoint'] = $endPoint = "https://wiki.szs.space/wl.api.php";
-                    $params = [
-                        "action" => "query",
-                        "list" => "categorymembers",
-                        "cmtitle" => $entry,
-                        "cmlimit" => "5000",
-                        "format" => "json"
-                    ];
+            // Create an array of Whitelisted Categories
+            $PWAC_WhitelistCatText = wfMessage($wgPWAC['WhitelistCat'])->text();
+            $PWAC_WhitelistCatArray = explode("\n", $PWAC_WhitelistCatText);
 
-                    $url = $wgPWAC['WhitelistApiEndPoint'] . "?" . http_build_query( $params );
+            // If the array of Whitelisted Categories is not empty (optionally)
+            if (!empty($PWAC_WhitelistCatArray)) {
 
-                    $ch = curl_init( $url );
-                    curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
-                    $output = curl_exec( $ch );
-                    curl_close( $ch );
+                foreach ($PWAC_WhitelistCatArray as $entry) {
 
-                    $result = json_decode( $output, true );
+                    // Find lines starting with one or more `*`, preceded by zero or more whitespaces
+                    $has_match = preg_match('#^\*+.*$#', $entry, $matches);
 
-                    // Whitelist each category member
-                    foreach( $result["query"]["categorymembers"] as $page ){
-                        //$PWAC_WhitelistReadCatCurrent[] = $page["title"];
-                        $entry = $page["title"];
-                        //$entry = preg_replace('/(\[\[|\]\])/', '', $entry);
-                        //$entry = trim(trim($entry, "*"));
-                        //$entry = preg_replace('/^\:/', '', $entry);
+                    if ($has_match == 1) {
+                        // Apply some filters
+                        $entry = preg_replace('/(\[\[|\]\])/', '', $entry);
+                        $entry = trim(trim($entry, "*"));
+                        $entry = preg_replace('/^\:/', '', $entry);
                         $entry = preg_replace("/[\s]/", "_", $entry);
+                        $entry = trim($entry);
+                        // Whitelist the category itself (probably this must be commentout?)
                         $PWAC_WhitelistReadCurrent[] = $entry;
+
+                        // API Request in order to get a list with the category members
+                        $params = [
+                            "action" => "query",
+                            "list" => "categorymembers",
+                            "cmtitle" => $entry,
+                            "cmlimit" => "5000",
+                            "format" => "json"
+                        ];
+
+                        // $wgPWAC['WhitelistApiEndPoint'] = $endPoint = "https://wiki.szs.space/wl.api.php";
+                        $url = $wgPWAC['WhitelistApiEndPoint'] . "?" . http_build_query( $params );
+
+                        // Do the API Request
+                        $ch = curl_init( $url );
+                        curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
+                        $output = curl_exec( $ch );
+                        curl_close( $ch );
+
+                        // Decode the list
+                        $result = json_decode( $output, true );
+
+                        // Whitelist each category member
+                        foreach( $result["query"]["categorymembers"] as $page ){
+                            $entry = $page["title"];
+                            // Apply some filters
+                            $entry = preg_replace("/[\s]/", "_", $entry);
+                            // Add the entry to whitelist
+                            $PWAC_WhitelistReadCurrent[] = $entry;
+                        }
                     }
                 }
             }
-        }
 
-        // Prepare the current and the saved Whitelist array for comparison
-        $PWAC_WhitelistReadSerialized = serialize($PWAC_WhitelistReadCurrent);
-        $PWAC_WhitelistReadFromFile = file_get_contents($wgPWAC['WhitelistPagesFile']);
+            // Prepare the current and the saved Whitelist array for comparison
+            $PWAC_WhitelistReadSerialized = serialize($PWAC_WhitelistReadCurrent);
+            $PWAC_WhitelistReadFromFile = file_get_contents($wgPWAC['WhitelistPagesFile']);
 
-        // Compare the current and the saved Whitelist array and save the new Whitelist array if it is needed
-        if ($PWAC_WhitelistReadSerialized != $PWAC_WhitelistReadFromFile) {
-            file_put_contents($wgPWAC['WhitelistPagesFile'], $PWAC_WhitelistReadSerialized, LOCK_EX);
-        }
-
-
-        /**
-         * Create an array of Whitelisted Api Requests
-        **/
-        $PWAC_WhitelistApiText = wfMessage($wgPWAC['WhitelistApi'])->text();
-        $PWAC_WhitelistApiArray = explode("\n", $PWAC_WhitelistApiText);
-
-        foreach ($PWAC_WhitelistApiArray as $entry) {
-            // Find lines starting with one or more `*`, preceded by zero or more whitespaces
-            $has_match = preg_match('#^\*+.*$#', $entry, $matches);
-            if ($has_match == 1) {
-                $entry = trim(trim($entry, "*"));
-                $PWAC_WhitelistReadApiCurrent[] = $entry;
+            // Compare the current and the saved Whitelist array and save the new Whitelist array if it is needed
+            if ($PWAC_WhitelistReadSerialized != $PWAC_WhitelistReadFromFile) {
+                file_put_contents($wgPWAC['WhitelistPagesFile'], $PWAC_WhitelistReadSerialized, LOCK_EX);
             }
-        }
 
-        // Allow all API requests when the list is empty
-        if (empty($PWAC_WhitelistReadApiCurrent)) {
-            $PWAC_WhitelistReadApiCurrent[] = $wgPWAC['WhitelistAllApi'];
-        }
 
-        $PWAC_WhitelistReadApiSerialized = serialize($PWAC_WhitelistReadApiCurrent);
-        $PWAC_WhitelistReadApiFromFile = file_get_contents($wgPWAC['WhitelistApiFile']);
+            /**
+             * Create an array of Whitelisted Api Requests
+            **/
 
-        // Write the new array values if it is needed
-        if ($PWAC_WhitelistReadApiSerialized != $PWAC_WhitelistReadApiFromFile) {
-                file_put_contents($wgPWAC['WhitelistApiFile'], $PWAC_WhitelistReadApiSerialized, LOCK_EX);
-        }
+            // Get a list of the Whitelisted Api Requests
+            $PWAC_WhitelistApiText = wfMessage($wgPWAC['WhitelistApi'])->text();
+            $PWAC_WhitelistApiArray = explode("\n", $PWAC_WhitelistApiText);
 
-        /**
-         * End of the function
-        **/
+            foreach ($PWAC_WhitelistApiArray as $entry) {
+                // Find lines starting with one or more `*`, preceded by zero or more whitespaces
+                $has_match = preg_match('#^\*+.*$#', $entry, $matches);
+                if ($has_match == 1) {
+                    $entry = trim(trim($entry, "*"));
+                    $PWAC_WhitelistReadApiCurrent[] = $entry;
+                }
+            }
+
+            // Allow all API requests when the list is empty
+            if (empty($PWAC_WhitelistReadApiCurrent)) {
+                $PWAC_WhitelistReadApiCurrent[] = $wgPWAC['WhitelistAllApi'];
+            }
+
+            // Prepare the current and the saved Whitelist array for comparison
+            $PWAC_WhitelistReadApiSerialized = serialize($PWAC_WhitelistReadApiCurrent);
+            $PWAC_WhitelistReadApiFromFile = file_get_contents($wgPWAC['WhitelistApiFile']);
+
+            // Write the new array values if it is needed
+            if ($PWAC_WhitelistReadApiSerialized != $PWAC_WhitelistReadApiFromFile) {
+                    file_put_contents($wgPWAC['WhitelistApiFile'], $PWAC_WhitelistReadApiSerialized, LOCK_EX);
+            }
+
+        } // end if
+
         return true;
-    }
+    } // End of the function
 
 
     public static function onBeforePageDisplay(OutputPage $out, Skin $skin) {
