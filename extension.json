@@ -35,12 +35,12 @@
 		"remoteExtPath": "PrivateWikiAccessControl"
 	},
 	"AutoloadClasses": {
-		"PrivateWikiAccessControl": "PrivateWikiAccessControl.body.php",
 		"PrivateWikiAccessControlHooks": "PrivateWikiAccessControl.hooks.php"
 	},
 	"Hooks": {
-		"BeforePageDisplay": "PrivateWikiAccessControlHooks::onBeforePageDisplay",
-		"ResourceLoaderGetConfigVars": "PrivateWikiAccessControlHooks::onResourceLoaderGetConfigVars"
+                "BeforePageDisplay": "PrivateWikiAccessControlHooks::onBeforePageDisplay",
+		"ResourceLoaderGetConfigVars": "PrivateWikiAccessControlHooks::onResourceLoaderGetConfigVars",
+		"ArticleViewHeader": "PrivateWikiAccessControlHooks::onArticleViewHeader"
 	}
 }
 

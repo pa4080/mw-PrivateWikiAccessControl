@@ -77,14 +77,14 @@ if (!defined('MEDIAWIKI')) {
 
 class PrivateWikiAccessControlHooks {
 
-    public static function onBeforePageDisplay(OutputPage $out, Skin $skin) {
+    public static function onArticleViewHeader( &$article, &$outputDone, &$pcache ) {
 
         global $wgPWAC;
 
         /**
          * Create an array of Whitelisted Pages and Categories (optionally)
         **/
-        
+
         // Create an array of Whitelisted Pages
         $PWAC_WhitelistText = wfMessage($wgPWAC['WhitelistPages'])->text();
         $PWAC_WhitelistArray = explode("\n", $PWAC_WhitelistText);
@@ -192,30 +192,15 @@ class PrivateWikiAccessControlHooks {
                 file_put_contents($wgPWAC['WhitelistApiFile'], $PWAC_WhitelistReadApiSerialized, LOCK_EX);
         }
 
-
-        /**
-         * Add the JavaScript menu interface element
-	 *
-         * ResourceLoader doesn't allow for external scripts.
-	 * Ref:	https://www.mediawiki.org/wiki/Topic:Vd6etm1wbin5sryp
-	 * But we do not longer need to load Font Awesome,
-	 * because the svg icons are embedded in the CSS code.
-	 * The following historical code snippet should be removed in the next version.
-	 *
-        $out->addLink(array(
-                'rel' => 'stylesheet',
-                'id' => 'FontAwesome',
-                'href' => 'https://use.fontawesome.com/releases/v5.8.2/css/all.css',
-                'integrity' => 'sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay',
-                'crossorigin' => 'anonymous',
-        ));
-	 *
-	**/
-        $out->addModules('PrivateWikiAccessControlManager');
-
         /**
          * End of the function
         **/
+        return true;
+    }
+
+
+    public static function onBeforePageDisplay(OutputPage $out, Skin $skin) {
+        $out->addModules('PrivateWikiAccessControlManager');
         return true;
     }
 
