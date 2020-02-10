@@ -73,10 +73,10 @@ if (!defined('MEDIAWIKI')) {
     if ($wgPWAC_Serialized != $wgPWAC_FromFile) {
         file_put_contents($wgPWAC['ConfigurationFile'], $wgPWAC_Serialized, LOCK_EX);
     }
-
 }
 
 class PrivateWikiAccessControlHooks {
+
     public static function onBeforePageDisplay(OutputPage $out, Skin $skin) {
 
         global $wgPWAC;
@@ -96,12 +96,12 @@ class PrivateWikiAccessControlHooks {
                 $entry = preg_replace('/(\[\[|\]\])/', '', $entry);
                 $entry = trim(trim($entry, "*"));
                 $entry = preg_replace('/^\:/', '', $entry);
+                $entry = preg_replace("/[\s]/", "_", $entry);
                 $entry = trim($entry);
                 $PWAC_WhitelistReadCurrent[] = $entry;
             }
         }
 
-        
         // Create an array of Whitelisted Categories (optionally)
         $PWAC_WhitelistCatText = wfMessage($wgPWAC['WhitelistCat'])->text();
         $PWAC_WhitelistCatArray = explode("\n", $PWAC_WhitelistCatText);
@@ -115,6 +115,7 @@ class PrivateWikiAccessControlHooks {
                     $entry = preg_replace('/(\[\[|\]\])/', '', $entry);
                     $entry = trim(trim($entry, "*"));
                     $entry = preg_replace('/^\:/', '', $entry);
+                    $entry = preg_replace("/[\s]/", "_", $entry);
                     $entry = trim($entry);
 
                     // Whitelist the category itself (probably this must be commentout?)
@@ -141,7 +142,12 @@ class PrivateWikiAccessControlHooks {
                     // Whitelist each category member
                     foreach( $result["query"]["categorymembers"] as $page ){
                         //$PWAC_WhitelistReadCatCurrent[] = $page["title"];
-                        $PWAC_WhitelistReadCurrent[] = $page["title"];
+                        $entry = $page["title"];
+                        //$entry = preg_replace('/(\[\[|\]\])/', '', $entry);
+                        //$entry = trim(trim($entry, "*"));
+                        //$entry = preg_replace('/^\:/', '', $entry);
+                        $entry = preg_replace("/[\s]/", "_", $entry);
+                        $PWAC_WhitelistReadCurrent[] = $entry;
                     }
                 }
             }

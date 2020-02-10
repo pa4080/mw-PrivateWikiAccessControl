@@ -6,12 +6,12 @@
  * @home      https://github.com/pa4080/mw-PrivateWikiAccessControl
  *
  * This file is a part of the MediaWiki Extension:PrivateWikiAccessControl.
- * 
- * This API is not loaded by MediaWiki as part of the extension. 
+ *
+ * This API is not loaded by MediaWiki as part of the extension.
  * Instead of that it is called by rewrite rules within Apache's VH configuration.
  * The API has two parts. The Part 1 will display the images (files) which articles belongs to MediaWiki:InternalWhitelist.
  * The Part 2 will Whitelist the API queries that are partially mentioned in MediaWiki:InternalWhitelistAPI.
- * 
+ *
  * PrivateWikiAccessControl project is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -22,7 +22,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * Example request:   https://wiki.org//api.php?action=query&titles=File:Image_name.png&prop=imageinfo&iiprop=size&format=json
  * Example end point: $endPoint = "https://wiki.org/api.php";
  *
@@ -45,26 +45,34 @@ if ($_GET['imgIWL']) {
 
     //global $wgPWAC;
 
+    $imgIWL_ContentTypes = [
+        'ogg' => 'application/ogg', 'pdf' => 'application/pdf', 'zip' => 'application/zip',
+        'mpeg' => 'audio/mpeg', 'wav' => 'audio/x-wav', 'gif' => 'image/gif', 'jpeg' => 'image/jpeg',
+        'jpg' => 'image/jpeg', 'png' => 'image/png', 'tiff' => 'image/tiff', 'djvu' => 'image/vnd.djvu',
+        'djv' => 'image/vnd.djvu', 'svg' => 'image/svg+xml', 'css' => 'text/css', 'cvs' => 'text/csv',
+        'html' => 'text/html', 'txt' => 'text/plain', 'xml' => 'text/xml', 'mpg' => 'video/mpeg',
+        'mpeg' => 'video/mpeg', 'mp4' => 'video/mp4', 'mkv' => 'video/mkv', 'avi' => 'video/avi',
+        'qt' => 'video/quicktime', 'wmv' => 'video/x-ms-wmv', 'webm' => 'video/webm',
+    ];
+
     $imgIWL_Img  = $_GET['imgIWL'];
-        $imgIWL_File = $wgPWAC['IP'] . $imgIWL_Img;
-        $imgIWL_Name = end(explode('/', $imgIWL_Img));
-        $imgIWL_Ext  = end(explode('.', $imgIWL_Img));
-        $imgIWL_Type = $imgIWL_ContentTypes["$imgIWL_Ext"];
+    $imgIWL_File = $wgPWAC['IP'] . $imgIWL_Img;
+    $imgIWL_Name = end(explode('/', $imgIWL_Img));
+    $imgIWL_Ext  = end(explode('.', $imgIWL_Img));
+    $imgIWL_Type = $imgIWL_ContentTypes["$imgIWL_Ext"];
 
     $wgWhitelistRead = unserialize(file_get_contents($wgPWAC['WhitelistPagesFile']));
 
-    if (preg_grep("/$imgIWL_Name/", $wgWhitelistRead)) {
+    // Test whether the requested Image is a Resized Version of any Whitelisted Image
+    foreach ($wgWhitelistRead as $entry) {
+	if (strpos($imgIWL_Name, end(explode(':', $entry)))) {
+            // this is an alternative trigger of the next condition
+            $imgIWL_Name_OriginalFile = $entry;
+        }
+    }
 
-        $imgIWL_ContentTypes = [
-            'ogg' => 'application/ogg', 'pdf' => 'application/pdf', 'zip' => 'application/zip',
-            'mpeg' => 'audio/mpeg', 'wav' => 'audio/x-wav', 'gif' => 'image/gif', 'jpeg' => 'image/jpeg',
-            'jpg' => 'image/jpeg', 'png' => 'image/png', 'tiff' => 'image/tiff', 'djvu' => 'image/vnd.djvu',
-            'djv' => 'image/vnd.djvu', 'svg' => 'image/svg+xml', 'css' => 'text/css', 'cvs' => 'text/csv',
-            'html' => 'text/html', 'txt' => 'text/plain', 'xml' => 'text/xml', 'mpg' => 'video/mpeg',
-            'mpeg' => 'video/mpeg', 'mp4' => 'video/mp4', 'mkv' => 'video/mkv', 'avi' => 'video/avi',
-            'qt' => 'video/quicktime', 'wmv' => 'video/x-ms-wmv', 'webm' => 'video/webm',
-        ];
-
+    // Provide the requested image or its resized version
+    if (preg_grep("/$imgIWL_Name/", $wgWhitelistRead) || ($imgIWL_Name_OriginalFile)) {
         header('Content-type: ' . $imgIWL_Type);
         readfile($imgIWL_File);
     }
