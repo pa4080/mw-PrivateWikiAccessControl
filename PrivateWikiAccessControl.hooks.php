@@ -36,28 +36,35 @@ if (!defined('MEDIAWIKI')) {
     global $IP;
     global $wgServer;
     global $wgPWAC;
+    global $wgPWACSettings;
 
-    $wgPWAC['IP']                 = (($wgPWAC['IP'])                 ? $wgPWAC['IP']                 : $IP);
-    $wgPWAC['CacheDir']           = (($wgPWAC['CacheDir'])           ? $wgPWAC['CacheDir']           : $wgPWAC['IP'] . '/cache');
-    $wgPWAC['WhitelistPages']     = (($wgPWAC['WhitelistPages'])     ? $wgPWAC['WhitelistPages']     : 'InternalWhitelist');
-    $wgPWAC['WhitelistApi']       = (($wgPWAC['WhitelistApi'])       ? $wgPWAC['WhitelistApi']       : 'InternalWhitelistAPI');
-    $wgPWAC['WhitelistCat']       = (($wgPWAC['WhitelistCat'])       ? $wgPWAC['WhitelistCat']       : 'InternalWhitelistCAT');
-    $wgPWAC['WhitelistPagesFile'] = (($wgPWAC['WhitelistPagesFile']) ? $wgPWAC['WhitelistPagesFile'] : $wgPWAC['CacheDir'] . '/PWAC_WhitelistPages.txt');
-    $wgPWAC['WhitelistApiFile']   = (($wgPWAC['WhitelistApiFile'])   ? $wgPWAC['WhitelistApiFile']   : $wgPWAC['CacheDir'] . '/PWAC_WhitelistApi.txt');
-    $wgPWAC['WhitelistCatFile']   = (($wgPWAC['WhitelistCatFile'])   ? $wgPWAC['WhitelistCatFile']   : $wgPWAC['CacheDir'] . '/PWAC_WhitelistCat.txt');
-    $wgPWAC['WhitelistApiUser']   = (($wgPWAC['WhitelistApiUser'])   ? $wgPWAC['WhitelistApiUser']   : false);
-    $wgPWAC['WhitelistApiPass']   = (($wgPWAC['WhitelistApiPass'])   ? $wgPWAC['WhitelistApiPass']   : false);
-    $wgPWAC['WhitelistApiCookie'] = (($wgPWAC['WhitelistApiCookie']) ? $wgPWAC['WhitelistApiCookie'] : $wgPWAC['CacheDir'] . '/PWAC_Api.cookie');
-    $wgPWAC['WhitelistApiLog']    = (($wgPWAC['WhitelistApiLog'])    ? $wgPWAC['WhitelistApiLog']    : $wgPWAC['CacheDir'] . '/PWAC_Api.log');
-    $wgPWAC['WhitelistAllApi']    = (($wgPWAC['WhitelistAllApi'])    ? $wgPWAC['WhitelistAllApi']    : 'Allow All');
-    $wgPWAC['WhitelistApiURI']    = (($wgPWAC['WhitelistApiURI'])    ? $wgPWAC['WhitelistApiURI']    : '/wl.api.php');
-    $wgPWAC['MediaWikiApiURI']    = (($wgPWAC['MediaWikiApiURI'])    ? $wgPWAC['MediaWikiApiURI']    : '/mw.api.php');
-    $wgPWAC['wgServerMediaWiki']  = (($wgPWAC['wgServerMediaWiki'])  ? $wgPWAC['wgServerMediaWiki']  : $wgServer);
-    $wgPWAC['WhitelistWalk']      = (($wgPWAC['WhitelistWalk'])      ? $wgPWAC['WhitelistWalk']      : false);
-    $wgPWAC['ConfigurationFile']  = (($wgPWAC['ConfigurationFile'])  ? $wgPWAC['ConfigurationFile']  : $wgPWAC['CacheDir'] . '/PWAC_Conf.txt');
-    $wgPWAC['AutoLoad']           = (($wgPWAC['AutoLoad'])           ? $wgPWAC['AutoLoad']           : false);
+    $wgPWAC['IP']                 = $IP;
+    $wgPWAC['CacheDir']           = $wgPWAC['IP'] . '/cache';
+    $wgPWAC['WhitelistPages']     = 'InternalWhitelist';
+    $wgPWAC['WhitelistApi']       = 'InternalWhitelistAPI';
+    $wgPWAC['WhitelistCat']       = 'InternalWhitelistCAT';
+    $wgPWAC['WhitelistPagesFile'] = $wgPWAC['CacheDir'] . '/PWAC_WhitelistPages.txt';
+    $wgPWAC['WhitelistApiFile']   = $wgPWAC['CacheDir'] . '/PWAC_WhitelistApi.txt';
+    $wgPWAC['WhitelistCatFile']   = $wgPWAC['CacheDir'] . '/PWAC_WhitelistCat.txt';
+    $wgPWAC['WhitelistApiUser']   = false;
+    $wgPWAC['WhitelistApiPass']   = false;
+    $wgPWAC['WhitelistApiCookie'] = $wgPWAC['CacheDir'] . '/PWAC_Api.cookie';
+    $wgPWAC['WhitelistApiLog']    = $wgPWAC['CacheDir'] . '/PWAC_Api.log';
+    $wgPWAC['WhitelistAllApi']    = 'Allow All';
+    $wgPWAC['WhitelistApiURI']    = '/wl.api.php';
+    $wgPWAC['MediaWikiApiURI']    = '/mw.api.php';
+    $wgPWAC['wgServerMediaWiki']  = $wgServer;
+    $wgPWAC['WhitelistWalk']      = false;
+    $wgPWAC['ConfigurationFile']  = $wgPWAC['CacheDir'] . '/PWAC_Conf.txt';
+    $wgPWAC['AutoLoad']           = false;
+    //$wgPWAC['CronLoadWLPage']     = 'MediaWiki:Pwac-menu-label_disabled_by_default';
 
-    // Only the value 'disable' must be accessible as parameter
+    // Merge the user's settings with the default ones
+    foreach ($wgPWACSettings as $key => $value) {
+        $wgPWAC[$key]  = $value;
+    }
+
+    // Only the value 'disable' is acceptable as user's preference
     if ($wgPWAC['WhitelistApiLog'] != 'disable') {
         $wgPWAC['WhitelistApiLog'] = $wgPWAC['CacheDir'] . '/PWAC_Api.log';
     }
@@ -81,10 +88,13 @@ class PrivateWikiAccessControlHooks {
     public static function onArticleViewHeader( &$article, &$outputDone, &$pcache ) {
 
         global $wgPWAC;
+        global $wgPWACSettings;
 
-	$articleTitle  = $article->getTitle();
-	$articleTitle  = end(explode(':', $articleTitle));
-	$allowedTitles = array($wgPWAC['WhitelistPages'], $wgPWAC['WhitelistCat'], $wgPWAC['WhitelistApi']);
+	$articleTitle = $article->getTitle();
+	$articleTitle = end(explode(':', $articleTitle));
+	$cronLoadWLPage = end(explode(':', $wgPWAC['CronLoadWLPage']));
+
+	$allowedTitles = array($wgPWAC['WhitelistPages'], $wgPWAC['WhitelistCat'], $wgPWAC['WhitelistApi'], $cronLoadWLPage);
 
         if (in_array($articleTitle, $allowedTitles) || $wgPWAC['AutoLoad'] === true) {
 
@@ -98,6 +108,7 @@ class PrivateWikiAccessControlHooks {
 
             // Process the array of Whitelisted Pages
             foreach ($PWAC_WhitelistArray as $entry) {
+
                 // Find lines starting with one or more `*`, preceded by zero or more whitespaces
                 $has_match = preg_match('#^\*+.*$#', $entry, $matches);
 
@@ -117,7 +128,7 @@ class PrivateWikiAccessControlHooks {
             $PWAC_WhitelistCatText = wfMessage($wgPWAC['WhitelistCat'])->text();
             $PWAC_WhitelistCatArray = explode("\n", $PWAC_WhitelistCatText);
 
-            // If the array of Whitelisted Categories is not empty (optionally)
+            // If the array of Whitelisted Categories is not empty
             if (!empty($PWAC_WhitelistCatArray)) {
 
                 foreach ($PWAC_WhitelistCatArray as $entry) {
@@ -167,6 +178,9 @@ class PrivateWikiAccessControlHooks {
                     }
                 }
             }
+
+            // This is a hack for the curl cron job for more details see README.md
+            $PWAC_WhitelistReadCurrent[] = $wgPWAC['CronLoadWLPage'];
 
             // Prepare the current and the saved Whitelist array for comparison
             $PWAC_WhitelistReadSerialized = serialize($PWAC_WhitelistReadCurrent);
