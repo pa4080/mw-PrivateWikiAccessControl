@@ -56,8 +56,8 @@ if (!defined('MEDIAWIKI')) {
     $wgPWAC['wgServerMediaWiki']  = $wgServer;
     $wgPWAC['WhitelistWalk']      = false;
     $wgPWAC['ConfigurationFile']  = $wgPWAC['CacheDir'] . '/PWAC_Conf.txt';
-    $wgPWAC['AutoLoad']           = false;
-    //$wgPWAC['CronLoadWLPage']     = 'MediaWiki:Pwac-menu-label_disabled_by_default';
+    $wgPWAC['AutoGenerateWL']     = false;
+    $wgPWAC['CronWLPage']         = 'MediaWiki:Pwac-menu-label_disabled_by_default';
 
     // Merge the user's settings with the default ones
     foreach ($wgPWACSettings as $key => $value) {
@@ -88,15 +88,14 @@ class PrivateWikiAccessControlHooks {
     public static function onArticleViewHeader( &$article, &$outputDone, &$pcache ) {
 
         global $wgPWAC;
-        global $wgPWACSettings;
 
-	$articleTitle = $article->getTitle();
-	$articleTitle = end(explode(':', $articleTitle));
-	$cronLoadWLPage = end(explode(':', $wgPWAC['CronLoadWLPage']));
+        $articleTitle = $article->getTitle();
+        $articleTitle = end(explode(':', $articleTitle));
+        $CronWLPage = end(explode(':', $wgPWAC['CronWLPage']));
 
-	$allowedTitles = array($wgPWAC['WhitelistPages'], $wgPWAC['WhitelistCat'], $wgPWAC['WhitelistApi'], $cronLoadWLPage);
+        $allowedTitles = array($wgPWAC['WhitelistPages'], $wgPWAC['WhitelistCat'], $wgPWAC['WhitelistApi'], $CronWLPage);
 
-        if (in_array($articleTitle, $allowedTitles) || $wgPWAC['AutoLoad'] === true) {
+        if (in_array($articleTitle, $allowedTitles) || $wgPWAC['AutoGenerateWL'] === true) {
 
             /**
              * Create an array of Whitelisted Pages and Categories
@@ -180,7 +179,7 @@ class PrivateWikiAccessControlHooks {
             }
 
             // This is a hack for the curl cron job for more details see README.md
-            $PWAC_WhitelistReadCurrent[] = $wgPWAC['CronLoadWLPage'];
+            $PWAC_WhitelistReadCurrent[] = $wgPWAC['CronWLPage'];
 
             // Prepare the current and the saved Whitelist array for comparison
             $PWAC_WhitelistReadSerialized = serialize($PWAC_WhitelistReadCurrent);
