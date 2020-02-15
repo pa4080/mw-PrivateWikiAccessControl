@@ -88,7 +88,7 @@ $wgGroupPermissions['*']['edit'] = false;           // Disable anonymous editing
 $wgGroupPermissions['*']['read'] = false;           // Disable reading by anonymous users
 ````
 
-### MediaWiki:InternalWhitelist > $IP/cache/PWAC_WhitelistPages.txt
+### `MediaWiki:InternalWhitelist` `>` `$IP/cache/PWAC_WhitelistPages.txt`
 
 **Whitelist certain pages.** The content of the page `MediaWiki:InternalWhitelist` will be stored as serialized array in the file `$IP/cache/PWAC_WhitelistPages.txt` in the way described above. After that, when some page is loaded (via the browser) the content of this file will be assigned to `$wgWhitelistRead` within `Localsettings.php` by the following line - thus your pages will be whitelisted:
 
@@ -150,9 +150,9 @@ $wgWhitelistRead[] = 'Page_1'; $wgWhitelistRead[] = 'Page_2';
 $wgWhitelistRead = array_merge($wgWhitelistRead, array( 'Page_1', 'Page_2', 'Page_etc'));
 ````
 
-### MediaWiki:InternalWhitelistCAT > $IP/cache/PWAC_WhitelistPages.txt
+### `MediaWiki:InternalWhitelistCAT` `>` `$IP/cache/PWAC_WhitelistPages.txt`
 
-**Whitelist category members.** You can use the wollowing syntax in order to add certain categories within the message page `MediaWiki:InternalWhitelistCAT`:
+**Whitelist category members.** You can use the following syntax in order to add certain categories within the message page `MediaWiki:InternalWhitelistCAT`:
 
 ````text
 * [[:Category:Example_1]]
@@ -162,11 +162,17 @@ $wgWhitelistRead = array_merge($wgWhitelistRead, array( 'Page_1', 'Page_2', 'Pag
 * [[:Категория:Example_3]]
 ````
 
-If the page `MediaWiki:InternalWhitelistCAT` exist and it is not epmpty its content willl be procesed: the extension **Extension:PrivateWikiAccessControl** will get the members of each listed category (by using our Whitelist API) and will append these items (members, pages) to the array stored in the file `$IP/cache/PWAC_WhitelistPages.txt`. Thus, when the content of the file is assigned to the array `$wgWhitelistRead` (within `Localsettings.php` as it is shown above) all members of the listed categories will become whitelisted for public access.
+* It is preferable to use the (formatted) name of the NameSpace Category (Nr. 8) in the wiki's language. For example for Bulgarian use `Категория:` instead of `Category`.
+
+If the page `MediaWiki:InternalWhitelistCAT` exist and it is not empty its content will be processed: the extension **Extension:PrivateWikiAccessControl** will get the members of each listed category (by using our Whitelist API) and will append these items (members, pages) to the array stored in the file `$IP/cache/PWAC_WhitelistPages.txt`. Thus, when the content of the file is assigned to the array `$wgWhitelistRead` (within `Localsettings.php` as it is shown above) all members of the listed categories will become whitelisted for public access.
 
 When `MediaWiki:InternalWhitelistCAT` is read, all lines that doesn't start with one or more wildcards will be ignored (`* [[:Category:...]]`). Sou you can add comments and headings inside that page. 
 
-### MediaWiki:InternalWhitelistAPI > $IP/cache/PWAC_WhitelistApi.txt
+### `MediaWiki:InternalWhitelistCAT` `>` `$IP/cache/PWAC_WhitelistCat.txt`
+
+**Create a list of the Whitelist Categories.** The extension will save the list of the Whitelist Categories in the file `$IP/cache/PWAC_WhitelistCat.txt`. Then the content of this file is exported to the JavaScript environment. Then the script `PrivateWikiAccessControlManager.js` will check whether the current article belongs to a Whitelist Category and will indicate that.
+
+### `MediaWiki:InternalWhitelistAPI` `>` `$IP/cache/PWAC_WhitelistApi.txt`
 
 **Whitelist certain API requests.** The content of the page `MediaWiki:InternalWhitelistAPI` will be stored as serialized array in the file `$IP/cache/PWAC_WhitelistApi.txt`. These entries will be used by `PrivateWikiAccessControl.api.php` as filter of allowed API requests. How to redirect some requests to that API will be described in the section [Apache2 Setup](#apache2-setup).
 
@@ -218,9 +224,9 @@ If you want to disable logging you can add the following line in your `LocalSett
  $wgPWACSettings['WhitelistApiLog'] = 'disable';
  ````
 
-### $wgPWACSettings[] > PWAC_Conf.txt
+### `$wgPWAC[Settings Array]` `>` `PWAC_Conf.txt`
 
-**Make the configuration parameters accessible for the Whitelist API.** In the beginning of `PrivateWikiAccessControl.hooks.php` you can see all possible parameters that could be tweaked from within `LocalSettings.php`. At all, the parameters that you need to set are:
+**Make the configuration parameters accessible for our API:PrivateWikiAccessControl.** In the beginning of `PrivateWikiAccessControl.hooks.php` you can see all possible parameters that could be tweaked from within `LocalSettings.php`. At all, the parameters that you need to set are:
 
 ````php
 // API:PrivateWikiAccessControl Settings
@@ -359,13 +365,15 @@ As it is explained above, the extension creates and uses the following files in 
 
 1. `$IP/cache/PWAC_WhitelistPages.txt` that is based on `MediaWiki:InternalWhitelist` and `MediaWiki:InternalWhitelistCAT`.
 
-2. `$IP/cache/PWAC_WhitelistApi.txt` that is based on `MediaWiki:InternalWhitelistAPI`.
+2. `$IP/cache/PWAC_WhitelistCat.txt` that is based on `MediaWiki:InternalWhitelistCAT` and is used by the script `PrivateWikiAccessControlManager.js`.
 
-3. `$IP/cache/PWAC_Conf.txt` that contains the configuration array `$wgPWAC[]` (`$wgPWACSettings[]`), used by our Whitelist API.
+3. `$IP/cache/PWAC_WhitelistApi.txt` that is based on `MediaWiki:InternalWhitelistAPI`.
 
-4. `$IP/cache/PWAC_Api.cookie` used by our Whitelist API in order to do authentication to MediaWiki's API.
+4. `$IP/cache/PWAC_Conf.txt` that contains the configuration array `$wgPWAC[]` (`$wgPWACSettings[]`), used by our Whitelist API.
 
-5. `$IP/cache/PWAC_Api.log` debug log written by our Whitelist API.
+5. `$IP/cache/PWAC_Api.cookie` used by our Whitelist API in order to do authentication to MediaWiki's API.
+
+6. `$IP/cache/PWAC_Api.log` debug log written by our Whitelist API.
 
 ## Hooks in use
 
