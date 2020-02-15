@@ -30,22 +30,31 @@
 	var captionPublic;
 	var captionPrivate;
 	var currentPageNameInWhitelistEntry;
+	var currentPageNameInWhitelistCat;
+
+	// Get the list of the variables forwarded by PrivateWikiAccessControlHooks::onResourceLoaderGetConfigVars
+	var wgPWAC = mw.config.get('wgPWAC');
+
+        // Get the list oft the Whitelist Categories as String (replace _ with spaces); for Array add: .split(',');
+        var whitelisCatList = wgPWAC.WhitelistCat.replace(/_/g, ' ');
+
+        var internalWhitelistArticleName = wgPWAC.WhitelistPages;
 
 	var currentPageName = mw.config.get('wgPageName');
 	var currentUserLanguage = mw.config.get('wgUserLanguage');
-	var whitelisPageURI = mw.config.get('wgArticlePath').replace('$1', 'MediaWiki:InternalWhitelist?action=raw');
-
-	var wgPWAC = mw.config.get('wgPWAC');
+        var nameOfCategoryNS = mw.config.get('wgFormattedNamespaces')[14]; // Category in the wiki's language
+        var nameOfMediaWikiNS = mw.config.get('wgFormattedNamespaces')[8]; // MediaWiki in the wiki's language
+	var whitelisPageURI = mw.config.get('wgArticlePath').replace('$1', nameOfMediaWikiNS + ':' + internalWhitelistArticleName + '?action=raw'); //.replace('$1', 'MediaWiki:InternalWhitelist?action=raw');
 
 	// If the action is 'view' and the user is logged in, then run the MAIN FUNCTION.
 	if (mw.config.get('wgAction') === 'view' && mw.config.get( 'wgUserId' ) !== null) {
 		generateLabelsCaptionsListEntryEtc();
 		isWhitelisted();
 
-		if ( wgPWAC.WhitelistWalk === 'Add' || wgPWAC.WhitelistWalk === 'add' ) {
+		if (wgPWAC.WhitelistWalk === 'Add' || wgPWAC.WhitelistWalk === 'add') {
 			// Add Pages to the InternalWhitelist while browsing the Wiki
 			addToWhitelist();
-		} else if ( wgPWAC.WhitelistWalk === 'Remove' || wgPWAC.WhitelistWalk === 'remove' ) {
+		} else if (wgPWAC.WhitelistWalk === 'Remove' || wgPWAC.WhitelistWalk === 'remove') {
 			// Remove Pages from the InternalWhitelist while browsing the Wiki
 			removeFromWhitelist();
 		}
@@ -55,8 +64,18 @@
 	function isWhitelisted() {
 		$.ajaxSetup({ cache: false });
 
+                // Test whether the article belongs to a Whitelist Category
+		wgCategories.forEach( function(category) {
+			if (whitelisCatList.indexOf(nameOfCategoryNS + ':' + category + ',') !== -1) currentPageNameInWhitelistCat = true;
+		});
+
 		$.get(whitelisPageURI, function(data){
-			if (data.includes(currentPageNameInWhitelistEntry) === true) {
+			if (currentPageNameInWhitelistCat === true) {
+				publicPageMenuItemCat();
+
+				// while the article belongs to a Whitelist Category
+                                // and it is automatically whitelisted, we do not need click function here
+			} else if (data.includes(currentPageNameInWhitelistEntry) === true) {
 				publicPageMenuItem();
 
 				$(whitelistMenuItem).click(function () {
@@ -79,15 +98,22 @@
 	// Generate menu item if the current page belongs to MediaWiki:InternalWhitelist
 	function publicPageMenuItem() {
 		if (whitelistMenuItem) { whitelistMenuItem.parentNode.removeChild(whitelistMenuItem); }
-	
+
 		whitelistMenuItem = mw.util.addPortletLink('p-cactions', '#', label + ' ', 'ca-pwac-whitelist-manager-public', captionPublic, 'g', '#ca-delete');
 	}
 
 	// Generate menu item if the current page doesn't belong to MediaWiki:InternalWhitelist
 	function privatePageMenuItem() {
 		if (whitelistMenuItem) { whitelistMenuItem.parentNode.removeChild(whitelistMenuItem); }
-		
+
 		whitelistMenuItem = mw.util.addPortletLink('p-cactions', '#', label + ' ', 'ca-pwac-whitelist-manager-private', captionPrivate, 'g', '#ca-delete');
+	}
+
+	// Generate menu item if the current page belongs to Whitelist Catehory
+	function publicPageMenuItemCat() {
+		if (whitelistMenuItem) { whitelistMenuItem.parentNode.removeChild(whitelistMenuItem); }
+
+		whitelistMenuItem = mw.util.addPortletLink('p-cactions', '#', label + ' ', 'ca-pwac-whitelist-manager-public-cat', captionCatPublic, '', '#ca-delete');
 	}
 
 	// Generate the menu item label, depending on the user's language.
@@ -96,6 +122,7 @@
 		label = mw.message( 'pwac-menu-label' ).text();
 		captionPublic  = mw.message( 'pwac-menu-alt-public' ).text();
 		captionPrivate = mw.message( 'pwac-menu-alt-private' ).text();
+		captionCatPublic = mw.message( 'pwac-menu-alt-public-cat' ).text();
 
 		// Contrukt Whitelist entry based on the current page name.
 		currentPageNameInWhitelistEntry = '* [[:' + currentPageName + ']]';
@@ -111,7 +138,7 @@
 					appendtext: currentPageNameInWhitelistEntry,
 					format: 'json'
 				}
-				
+
 				var api = new mw.Api();
 
 				api.postWithToken('csrf', params).done(function (data) {
@@ -159,7 +186,7 @@
 				text: data,
 				format: 'json'
 			}
-			
+
 			var api = new mw.Api();
 
 			api.postWithToken('csrf', params).done(function (data) {

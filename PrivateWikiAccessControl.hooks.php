@@ -145,6 +145,9 @@ class PrivateWikiAccessControlHooks {
                         // Whitelist the category itself (probably this must be commentout?)
                         $PWAC_WhitelistReadCurrent[] = $entry;
 
+			// Prepare an array that contains the list of the Whitelist Categories (cat)
+			$PWAC_WhitelistCategoryList[] = $entry;
+
                         // API Request in order to get a list with the category members
                         $params = [
                             "action" => "query",
@@ -188,6 +191,15 @@ class PrivateWikiAccessControlHooks {
             // Compare the current and the saved Whitelist array and save the new Whitelist array if it is needed
             if ($PWAC_WhitelistReadSerialized != $PWAC_WhitelistReadFromFile) {
                 file_put_contents($wgPWAC['WhitelistPagesFile'], $PWAC_WhitelistReadSerialized, LOCK_EX);
+            }
+
+            // Prepare the current and the saved list of the Whitelist Categories array for comparison (cat)
+            $PWAC_WhitelistCatSerialized = serialize($PWAC_WhitelistCategoryList);
+            $PWAC_WhitelistCatFromFile = file_get_contents($wgPWAC['WhitelistCatFile']);
+
+            // Compare the current and the saved list of the Whitelist Categories array if it is needed (cat)
+            if ($PWAC_WhitelistCatSerialized != $PWAC_WhitelistCatFromFile) {
+                file_put_contents($wgPWAC['WhitelistCatFile'], $PWAC_WhitelistCatSerialized, LOCK_EX);
             }
 
 
@@ -236,9 +248,21 @@ class PrivateWikiAccessControlHooks {
     public static function onResourceLoaderGetConfigVars( array &$vars ) {
         global $wgPWAC;
 
+        // Prepare the list of Whitelist Categories to the JavaScript environment
+        $PWAC_WhitelistCatFromFile = unserialize(file_get_contents($wgPWAC['WhitelistCatFile']));
+
+        foreach ($PWAC_WhitelistCatFromFile as $entry) {
+            //$entry = end(explode(':', $entry));
+            $PWAC_WhitelistCatJS = $PWAC_WhitelistCatJS . $entry . ', ';
+        }
+        //$PWAC_WhitelistCatJS = json_encode($PWAC_WhitelistCatFromFile);
+
+
         // Forward some PHP variables to the JavaScript environment
         $vars['wgPWAC'] = [
-            'WhitelistWalk' => $wgPWAC['WhitelistWalk']
+            'WhitelistPages' => $wgPWAC['WhitelistPages'],
+            'WhitelistWalk'  => $wgPWAC['WhitelistWalk'],
+            'WhitelistCat'   => $PWAC_WhitelistCatJS
         ];
 
         return true;

@@ -26,7 +26,8 @@
 			"messages": [
 				"pwac-menu-label",
 				"pwac-menu-alt-private",
-				"pwac-menu-alt-public"
+				"pwac-menu-alt-public",
+				"pwac-menu-alt-public-cat"
 			]
 		}
 	},
