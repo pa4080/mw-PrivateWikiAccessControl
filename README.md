@@ -350,7 +350,7 @@ The Apache's configuration must be made at the Virtual Host level, this is becau
 
 All used directives and rules are well described within the example, so I think no more explanations are needed at this stage.
 
-If it is MediaWiki Family you need to create such configuration for each wiki.
+If it is MediaWiki Family you need to create such configuration for each wiki. Also for `${wikiDBName}` you must setup the shared DB name, you may need to use the inspector tool of your browser in order to read the cookie for logged-in users and determinate the exact value of this variable.
 
 You can send requests directly to `/wl.api.php`. For example within my wikis I'm using [Extension:ExternalData](https://www.mediawiki.org/wiki/Extension:External_Data) in the following way:
 
