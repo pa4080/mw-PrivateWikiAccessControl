@@ -22,6 +22,7 @@
  *
 **/
 
+
 (function (mw, $) {
 
 	// Definition of the necessary variables.
@@ -36,7 +37,9 @@
 	var wgPWAC = mw.config.get('wgPWAC');
 
         // Get the list oft the Whitelist Categories as String (replace _ with spaces); for Array add: .split(',');
-        var whitelisCatList = wgPWAC.WhitelistCat.replace(/_/g, ' ');
+        if (wgPWAC.WhitelistCat) {
+		var whitelisCatList = wgPWAC.WhitelistCat.replace(/_/g, ' ');
+	}
 
         var internalWhitelistArticleName = wgPWAC.WhitelistPages;
 
@@ -135,7 +138,7 @@
 			if (data.includes(currentPageNameInWhitelistEntry) === false) {
 				var params = {
 					action: 'edit',
-					title: 'MediaWiki:InternalWhitelist',
+					title: nameOfMediaWikiNS + ':' + internalWhitelistArticleName, //'MediaWiki:InternalWhitelist',
 					section: 'new',
 					appendtext: currentPageNameInWhitelistEntry,
 					format: 'json'
@@ -184,7 +187,7 @@
 
 			var params = {
 				action: 'edit',
-				title: 'MediaWiki:InternalWhitelist',
+				title: nameOfMediaWikiNS + ':' + internalWhitelistArticleName, //'MediaWiki:InternalWhitelist',
 				text: data,
 				format: 'json'
 			}
