@@ -44,6 +44,7 @@
         var internalWhitelistArticleName = wgPWAC.WhitelistPages;
 
 	var currentPageName = mw.config.get('wgPageName');
+	var currentPageCategories = mw.config.get('wgCategories');
 	var currentUserLanguage = mw.config.get('wgUserLanguage');
         var nameOfCategoryNS = mw.config.get('wgFormattedNamespaces')[14]; // Category in the wiki's language
         var nameOfMediaWikiNS = mw.config.get('wgFormattedNamespaces')[8]; // MediaWiki in the wiki's language
@@ -69,7 +70,7 @@
 
 		// Test whether the article belongs to a Whitelist Category,based on the list exported by the extension.
 		// This is an alternative of the $.get(mw.Api()) request used by the other condition, which updates the values more dynamically.
-		wgCategories.forEach( function(category) {
+		currentPageCategories.forEach( function(category) {
 			if (whitelisCatList.indexOf(nameOfCategoryNS + ':' + category + ',') !== -1) currentPageNameInWhitelistCat = true;
 		});
 
