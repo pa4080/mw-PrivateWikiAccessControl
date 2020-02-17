@@ -67,37 +67,37 @@
 	function isWhitelisted() {
 		$.ajaxSetup({ cache: false });
 
-		// Test whether the article belongs to a Whitelist Category,
-		// baed on the list exported by the extension.
-		// This is an alternative of the API Request used in for the other pages $.get(mw.Api()):
-		// probably they must be processed in the same way!!!
+		// Test whether the article belongs to a Whitelist Category,based on the list exported by the extension.
+		// This is an alternative of the $.get(mw.Api()) request used by the other condition, which updates the values more dynamically.
 		wgCategories.forEach( function(category) {
 			if (whitelisCatList.indexOf(nameOfCategoryNS + ':' + category + ',') !== -1) currentPageNameInWhitelistCat = true;
 		});
 
-		$.get(whitelisPageURI, function(data){
-			if (currentPageNameInWhitelistCat === true) {
-				publicPageMenuItemCat();
-				// while the article belongs to a Whitelist Category
-                                // and it is automatically whitelisted, we do not need click function here
-			} else if (data.includes(currentPageNameInWhitelistEntry) === true) {
-				publicPageMenuItem();
-
-				$(whitelistMenuItem).click(function () {
-					removeFromWhitelist();
-					privatePageMenuItem();
-					window.location.reload(true); // Avoid some confusions
-				});
-			} else {
-				privatePageMenuItem();
-
-				$(whitelistMenuItem).click(function () {
-					addToWhitelist();
+		if (currentPageNameInWhitelistCat === true) {
+			publicPageMenuItemCat();
+			// while the article belongs to a Whitelist Category
+                        // and it is automatically whitelisted, we do not need click function here
+		} else {
+			$.get(whitelisPageURI, function(data){
+				if (data.includes(currentPageNameInWhitelistEntry) === true) {
 					publicPageMenuItem();
-					window.location.reload(true); // Avoid some confusions
-				});
-			}
-		});
+
+					$(whitelistMenuItem).click(function () {
+						removeFromWhitelist();
+						privatePageMenuItem();
+						window.location.reload(true); // Avoid some confusions
+					});
+				} else {
+					privatePageMenuItem();
+
+					$(whitelistMenuItem).click(function () {
+						addToWhitelist();
+						publicPageMenuItem();
+						window.location.reload(true); // Avoid some confusions
+					});
+				}
+			});
+		}
 	}
 
 	// Generate menu item if the current page belongs to MediaWiki:InternalWhitelist
