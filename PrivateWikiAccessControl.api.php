@@ -41,7 +41,8 @@ $wgPWAC = unserialize(file_get_contents($_SERVER['DOCUMENT_ROOT'] . '/cache/PWAC
 /**
  * PART 1: Image Whitelist Option
 **/
-if ($_GET['imgIWL']) {
+//if ($_GET['imgIWL']) {
+if (isset($_GET['imgIWL'])) {
 
     //global $wgPWAC;
 
@@ -57,15 +58,19 @@ if ($_GET['imgIWL']) {
 
     $imgIWL_Img  = $_GET['imgIWL'];
     $imgIWL_File = $wgPWAC['IP'] . $imgIWL_Img;
-    $imgIWL_Name = end(explode('/', $imgIWL_Img));
-    $imgIWL_Ext  = end(explode('.', $imgIWL_Img));
+    $imgIWL_Name = explode('/', $imgIWL_Img);
+    $imgIWL_Name = end($imgIWL_Name);
+    $imgIWL_Ext  = explode('.', $imgIWL_Img);
+    $imgIWL_Ext  = end($imgIWL_Ext);
     $imgIWL_Type = $imgIWL_ContentTypes["$imgIWL_Ext"];
 
     $wgWhitelistRead = unserialize(file_get_contents($wgPWAC['WhitelistPagesFile']));
 
     // Test whether the requested Image is a Resized Version of any Whitelisted Image
     foreach ($wgWhitelistRead as $entry) {
-        if (strpos($imgIWL_Name, end(explode(':', $entry)))) {
+        $entry = explode(':', $entry);
+        $entry = end($entry);
+        if (strpos($imgIWL_Name, $entry)) {
             // this is an alternative trigger of the next condition
             $imgIWL_Name_OriginalFile = $entry;
         }
@@ -89,10 +94,11 @@ if ($wgPWAC['WhitelistApiLog'] && $wgPWAC['WhitelistApiLog'] != 'disable') {
     //global $wgPWAC;
 
     $logLine = $_SERVER['REMOTE_ADDR'] . ': ' . urldecode(http_build_query($_GET)) . PHP_EOL;
+    $logFile = $wgPWAC['WhitelistApiLog'];
     if (filesize($wgPWAC['WhitelistApiLog']) > 100000) {
-        file_put_contents($wgPWAC['WhitelistApiLog'], $logLine, LOCK_EX);
+        file_put_contents($logFile, $logLine, LOCK_EX);
     } else {
-        file_put_contents($wgPWAC['WhitelistApiLog'], $logLine, FILE_APPEND | LOCK_EX);
+        file_put_contents($logFile, $logLine, FILE_APPEND | LOCK_EX);
     }
 }
 
@@ -167,7 +173,11 @@ function Get_mwApiLoginToken( array $wgPWAC )
 
     $result = json_decode($output, true);
 
-    return $result["login"]["token"];
+    if (isset($result["login"]["token"])) {
+	return $result["login"]["token"];
+    } else {
+        return true;
+    }
 }
 
 /**

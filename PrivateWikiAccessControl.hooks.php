@@ -90,8 +90,12 @@ class PrivateWikiAccessControlHooks {
         global $wgPWAC;
 
         $articleTitle = $article->getTitle();
-        $articleTitle = end(explode(':', $articleTitle));
-        $CronWLPage = end(explode(':', $wgPWAC['CronWLPage']));
+        $articleTitle = explode(':', $articleTitle);
+        $articleTitle = end($articleTitle);
+
+        $CronWLPage = $wgPWAC['CronWLPage'];
+        $CronWLPage = explode(':', $CronWLPage);
+        $CronWLPage = end($CronWLPage);
 
         $allowedTitles = array($wgPWAC['WhitelistPages'], $wgPWAC['WhitelistCat'], $wgPWAC['WhitelistApi'], $CronWLPage);
 
@@ -250,9 +254,9 @@ class PrivateWikiAccessControlHooks {
 
         // Prepare the list of Whitelist Categories to the JavaScript environment
         $PWAC_WhitelistCatFromFile = unserialize(file_get_contents($wgPWAC['WhitelistCatFile']));
+        $PWAC_WhitelistCatJS = '';
 
         foreach ($PWAC_WhitelistCatFromFile as $entry) {
-            //$entry = end(explode(':', $entry));
             $PWAC_WhitelistCatJS = $PWAC_WhitelistCatJS . $entry . ', ';
         }
         //$PWAC_WhitelistCatJS = json_encode($PWAC_WhitelistCatFromFile);
