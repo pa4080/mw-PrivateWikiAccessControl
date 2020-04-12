@@ -37,7 +37,6 @@ if (empty($_GET)) {
 // Get the Configuration Settings
 $wgPWAC = unserialize(file_get_contents($_SERVER['DOCUMENT_ROOT'] . '/cache/PWAC_Conf.txt'));
 
-
 /**
  * PART 1: Image Whitelist Option
 **/
@@ -70,7 +69,11 @@ if (isset($_GET['imgIWL'])) {
     foreach ($wgWhitelistRead as $entry) {
         $entry = explode(':', $entry);
         $entry = end($entry);
-        if (strpos($imgIWL_Name, $entry)) {
+        $entry_Ext  = explode('.', $entry);
+        $entry_Ext  = end($entry_Ext);
+
+        // Handle the cases when the request image is rendered version of any file, for example PDF > JPG
+        if (strpos($imgIWL_Name, $entry) && in_array($entry_Ext, array_keys($imgIWL_ContentTypes)) ) {
             // this is an alternative trigger of the next condition
             $imgIWL_Name_OriginalFile = $entry;
         }

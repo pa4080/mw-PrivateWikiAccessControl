@@ -105,14 +105,14 @@
 	function publicPageMenuItem() {
 		if (whitelistMenuItem) { whitelistMenuItem.parentNode.removeChild(whitelistMenuItem); }
 
-		whitelistMenuItem = mw.util.addPortletLink('p-cactions', '#', label + ' ', 'ca-pwac-whitelist-manager-public', captionPublic, 'g', '#ca-delete');
+		whitelistMenuItem = mw.util.addPortletLink('p-cactions', '#', label + ' ', 'ca-pwac-whitelist-manager-public', captionPrivate, 'g', '#ca-delete');
 	}
 
 	// Generate menu item if the current page doesn't belong to MediaWiki:InternalWhitelist
 	function privatePageMenuItem() {
 		if (whitelistMenuItem) { whitelistMenuItem.parentNode.removeChild(whitelistMenuItem); }
 
-		whitelistMenuItem = mw.util.addPortletLink('p-cactions', '#', label + ' ', 'ca-pwac-whitelist-manager-private', captionPrivate, 'g', '#ca-delete');
+		whitelistMenuItem = mw.util.addPortletLink('p-cactions', '#', label + ' ', 'ca-pwac-whitelist-manager-private', captionPublic, 'g', '#ca-delete');
 	}
 
 	// Generate menu item if the current page belongs to Whitelist Catehory
