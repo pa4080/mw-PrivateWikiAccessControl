@@ -146,6 +146,7 @@ class PrivateWikiAccessControlHooks {
                         $entry = preg_replace('/^\:/', '', $entry);
                         $entry = preg_replace("/[\s]/", "_", $entry);
                         $entry = trim($entry);
+
                         // Whitelist the category itself (probably this must be commentout?)
                         $PWAC_WhitelistReadCurrent[] = $entry;
 
@@ -184,6 +185,14 @@ class PrivateWikiAccessControlHooks {
                     }
                 }
             }
+
+
+	    // Catch the cases where the whitelist pages are empty, resp. the arrays is not defined
+            // Probably this must be included in the condition above...
+	    if ( ! isset($PWAC_WhitelistCategoryList) ) {
+            	$PWAC_WhitelistCategoryList = ['empty'];
+            }
+
 
             // This is a hack for the curl cron job for more details see README.md
             $PWAC_WhitelistReadCurrent[] = $wgPWAC['CronWLPage'];
