@@ -62,6 +62,7 @@ if (isset($_GET['imgIWL'])) {
     $imgIWL_Ext  = explode('.', $imgIWL_Img);
     $imgIWL_Ext  = end($imgIWL_Ext);
     $imgIWL_Type = $imgIWL_ContentTypes["$imgIWL_Ext"];
+    $imgIWL_Name_OriginalFile = '';
 
     $wgWhitelistRead = unserialize(file_get_contents($wgPWAC['WhitelistPagesFile']));
 
@@ -76,9 +77,7 @@ if (isset($_GET['imgIWL'])) {
         if (strpos($imgIWL_Name, $entry) && in_array($entry_Ext, array_keys($imgIWL_ContentTypes)) ) {
             // this is an alternative trigger of the next condition
             $imgIWL_Name_OriginalFile = $entry;
-        } else {
-            $imgIWL_Name_OriginalFile = '';
-	}
+        }
     }
 
     // Provide the requested image or its resized version
@@ -89,6 +88,7 @@ if (isset($_GET['imgIWL'])) {
         header('Content-type: ' . 'image/jpeg');
         readfile('./images/access-denied.jpg');
     }
+
     return true;
 }
 
