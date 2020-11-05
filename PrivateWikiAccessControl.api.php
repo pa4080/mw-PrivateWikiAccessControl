@@ -78,6 +78,15 @@ if (isset($_GET['imgIWL'])) {
             // this is an alternative trigger of the next condition
             $imgIWL_Name_OriginalFile = $entry;
         }
+
+	/**
+         * В горното условие има малък бъг. Например:
+	 * 	"Файл:ЕФ Структура на Технологичната среда 1.png" се показва когато
+	 * 	"Файл:Структура на Технологичната среда 1.png" е разрешен.
+	 * Условията (preg_grep("/^$entry/", $imgIWL_Name)" или ($entry === $imgIWL_Name) не вършат работа в случаи като този,
+	 * когато трябва да се изведе "36px-FolderTreeGreenIcon.svg.png", когато "Файл:FolderTreeGreenIcon.svg" е разрешен.
+	 */
+	//file_put_contents('/tmp/pwac.entry.log', $imgIWL_Name_OriginalFile . ' : ' . $entry . ' : ' . $imgIWL_Name, LOCK_EX);
     }
 
     // Provide the requested image or its resized version
