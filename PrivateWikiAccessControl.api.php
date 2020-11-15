@@ -34,13 +34,17 @@ if (empty($_GET)) {
     return true;
 }
 
-// Get the Configuration Settings
-$wgPWAC = unserialize(file_get_contents($_SERVER['DOCUMENT_ROOT'] . '/cache/PWAC_Conf.txt'));
+// Get the Configuration Settings, https://www.php.net/manual/en/language.constants.predefined.php
+// Define custom algorithm for cache dir determination
+if ( file_exists(__DIR__ . '/PrivateWikiAccessControl.api.conf.php') ) {
+    require_once(__DIR__ . '/PrivateWikiAccessControl.api.conf.php');
+} else {
+    $wgPWAC = unserialize(file_get_contents($_SERVER['DOCUMENT_ROOT'] . '/cache/PWAC_Conf.txt'));
+}
 
 /**
  * PART 1: Image Whitelist Option
 **/
-//if ($_GET['imgIWL']) {
 if (isset($_GET['imgIWL'])) {
 
     //global $wgPWAC;
@@ -74,13 +78,13 @@ if (isset($_GET['imgIWL'])) {
         $entry_Ext  = end($entry_Ext);
 
         // Handle the cases when the request image is rendered version of any file, for example PDF > JPG
-        if (strpos($imgIWL_Name, $entry) && in_array($entry_Ext, array_keys($imgIWL_ContentTypes)) ) {
+        if (strpos($imgIWL_Name, $entry) && in_array($entry_Ext, array_keys($imgIWL_ContentTypes))) {
             // this is an alternative trigger of the next condition
             $imgIWL_Name_OriginalFile = $entry;
         }
 
 	/**
-         * В горното условие има малък бъг. Например:
+     * В горното условие има малък бъг. Например:
 	 * 	"Файл:ЕФ Структура на Технологичната среда 1.png" се показва когато
 	 * 	"Файл:Структура на Технологичната среда 1.png" е разрешен.
 	 * Условията (preg_grep("/^$entry/", $imgIWL_Name)" или ($entry === $imgIWL_Name) не вършат работа в случаи като този,

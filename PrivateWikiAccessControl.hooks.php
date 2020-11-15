@@ -8,11 +8,11 @@
  * This file is a part of the MediaWiki Extension:PrivateWikiAccessControl.
  *
  * This is the actual MediaWiki Extension:PrivateWikiAccessControl.
- * The extension will generate three files (by default) located in the '$IP/cache' directory - so it must be writable by 'www-data'.
+ * The extension will generate three files (by default) located in the '$wgCacheDirectory' directory - so it must be writable by 'www-data'.
  * 1. The first file is an Configuration Array that will be used by the API from the same package.
  * 2. The second file is an Array that contains the Pages listed in MediaWiki:InternalWhitelist.
  *    This array could be read within LocalSettings.php in a way like this:
- *    $wgWhitelistRead = unserialize(file_get_contents("$IP/cache/PWAC_WhitelistPages.txt"));
+ *    $wgWhitelistRead = unserialize(file_get_contents("$wgCacheDirectory/PWAC_WhitelistPages.txt"));
  * 3. The third file is an Array that contains the Queries (partially) listed in MediaWiki:InternalWhitelistAPI.
  *    This Array will be used by the API from the same package.
  * In addition the extension loads a JavaScript module that will ad an interface menu element within the dropdown menu 'More'.
@@ -34,12 +34,13 @@ if (!defined('MEDIAWIKI')) {
     die('This file is an extension to MediaWiki and thus not a valid entry point.');
 } else {
     global $IP;
+    global $wgCacheDirectory;
     global $wgServer;
     global $wgPWAC;
     global $wgPWACSettings;
 
     $wgPWAC['IP']                 = $IP;
-    $wgPWAC['CacheDir']           = $wgPWAC['IP'] . '/cache';
+    $wgPWAC['CacheDir']           = $wgCacheDirectory;
     $wgPWAC['WhitelistPages']     = 'InternalWhitelist';
     $wgPWAC['WhitelistApi']       = 'InternalWhitelistAPI';
     $wgPWAC['WhitelistCat']       = 'InternalWhitelistCAT';
@@ -61,7 +62,7 @@ if (!defined('MEDIAWIKI')) {
 
     // Merge the user's settings with the default ones
     foreach ($wgPWACSettings as $key => $value) {
-        $wgPWAC[$key]  = $value;
+        $wgPWAC[$key] = $value;
     }
 
     // Only the value 'disable' is acceptable as user's preference
