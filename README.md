@@ -41,7 +41,7 @@ Add the following code at the bottom of your `LocalSettings.php`:
 ````php
 // Extension:PrivateWikiAccessControl Settings
 wfLoadExtension( 'PrivateWikiAccessControl' );
-$wgWhitelistRead = unserialize(file_get_contents("$IP/cache/PWAC_WhitelistPages.txt"));
+$wgWhitelistRead = unserialize(file_get_contents($wgCacheDirectory . "/PWAC_WhitelistPages.txt"));
 ````
 
 ````php
@@ -60,18 +60,18 @@ After that you need to create the following service pages (where `MediaWiki:` NS
 * `MediaWiki:InternalWhitelistCAT` - that will contain a list of categories which members will be whitelisted (currently and the category itself will be whitelisted - probably this should be an option in the future versions).
 * `MediaWiki:InternalWhitelistAPI` - that will contain a list of allowed API requests.
 
-When it is enabled, the **Extension:PrivateWikiAccessControl** will read the MediaWiki message pages `InternalWhitelist`, `InternalWhitelistCAT` and `InternalWhitelistAPI`, and on their base it will generate two arrays stored in the wiki's cache directory (so it must be writable by the Apache's user `www-data`). These are the files `$IP/cache/PWAC_WhitelistPages.txt` and `$IP/cache/PWAC_WhitelistApi.txt` - for more information, read the section [Created Files](#created-files).
+When it is enabled, the **Extension:PrivateWikiAccessControl** will read the MediaWiki message pages `InternalWhitelist`, `InternalWhitelistCAT` and `InternalWhitelistAPI`, and on their base it will generate two arrays stored in the wiki's cache directory (so it must be writable by the Apache's user `www-data`). These are the files `$wgCacheDirectory/PWAC_WhitelistPages.txt` and `$wgCacheDirectory/PWAC_WhitelistApi.txt` - for more information, read the section [Created Files](#created-files).
 
-When exactly these files will be generated (or regenerated) depends on the values of `$wgPWACSettings['AutoGenerateWL']` and `$wgPWACSettings['CronWLPage']`:
+The exact moment when these files will be generated (or regenerated) depends on the values of `$wgPWACSettings['AutoGenerateWL']` and `$wgPWACSettings['CronWLPage']`:
 
-* By default the two files `PWAC_WhitelistPages.txt` and `PWAC_WhitelistApi.txt` will be generated when you visit or reload one of the pages `InternalWhitelist`, `InternalWhitelistCAT` or `InternalWhitelistAPI`.
+* By default the two files `PWAC_WhitelistPages.txt` and `PWAC_WhitelistApi.txt` will be generated when you visit or reload one of the pages `MediaWiki:InternalWhitelist`, `MediaWiki:InternalWhitelistCAT` or `MediaWiki:InternalWhitelistAPI`.
 
 * When `$wgPWACSettings['AutoGenerateWL'] = true;` the above files will be generated on each page reload, while you or someone other browse the wiki. This option could cause slow performance of the wiki (because the extension makes few API Requests each time), so I would prefer this option only for test purposes.
 
-* When `$wgPWACSettings['CronWLPage'] = 'MediaWiki:Pwac-menu-label';` (or `any_other_page`, note the NameSpace names are specific for each language, so it is wiki family you must assign this value for each wiki separately) the page provided as value of this parameter will be automatically whitelisted and also will become a trigger for regeneration of the two files `PWAC_WhitelistPages.txt` and `PWAC_WhitelistApi.txt`. Thus we can use that page to automate the process via Cron job as this: 
+* When `$wgPWACSettings['CronWLPage'] = 'MediaWiki:Pwac-menu-label';` (or `any_other_page`, note the NameSpace names are specific for each language, so it is Wiki family you must assign this value for each wiki separately) the page provided as value of this parameter will be automatically whitelisted and also will become a trigger for regeneration of the two files `PWAC_WhitelistPages.txt` and `PWAC_WhitelistApi.txt`. Thus we can use that page to automate the process via Cron job as this: 
 
   ````bash
-  */15 * * * * /usr/bin/curl -H 'Cache-Control: no-cache' https://wiki.example.com/wiki/МедияУики:Pwac-menu-label >/dev/null 2>&1
+  */15 * * * * /usr/bin/curl -H 'Cache-Control: no-cache' https://wiki-example.org/wiki/МедияУики:Pwac-menu-label >/dev/null 2>&1
   ````
 
   * Note in this case the wiki uses Bulgarian language - `МедияУики:`.
@@ -88,19 +88,19 @@ $wgGroupPermissions['*']['edit'] = false;           // Disable anonymous editing
 $wgGroupPermissions['*']['read'] = false;           // Disable reading by anonymous users
 ````
 
-### `MediaWiki:InternalWhitelist` `>` `$IP/cache/PWAC_WhitelistPages.txt`
+### `MediaWiki:InternalWhitelist` `>` `$wgCacheDirectory/PWAC_WhitelistPages.txt`
 
-**Whitelist certain pages.** The content of the page `MediaWiki:InternalWhitelist` will be stored as serialized array in the file `$IP/cache/PWAC_WhitelistPages.txt` in the way described above. After that, when some page is loaded (via the browser) the content of this file will be assigned to `$wgWhitelistRead` within `Localsettings.php` by the following line - thus your pages will be whitelisted:
+**Whitelist certain pages.** The content of the page `MediaWiki:InternalWhitelist` will be stored as serialized array in the file `$wgCacheDirectory/PWAC_WhitelistPages.txt` in the way described above. After that, when some page is loaded (via the browser) the content of this file will be assigned to `$wgWhitelistRead` within `Localsettings.php` by the following line - thus your pages will be whitelisted:
 
 ````php
-$wgWhitelistRead = unserialize(file_get_contents("$IP/cache/PWAC_WhitelistPages.txt"));
+$wgWhitelistRead = unserialize(file_get_contents($wgCacheDirectory . "/PWAC_WhitelistPages.txt"));
 ````
 
 * <small>*It is no longer possible (I think since MW 1.33) to change the value of `$wgWhitelistRead` within an extension and this is the reason why the [Extension:InternalWhitelist](https://www.mediawiki.org/wiki/Extension:InternalWhitelist) no longer works.*</small>
 
-When `MediaWiki:InternalWhitelist` is read by the extension, all lines that doesn't start with one or more wildcards (`* Page_name`) will be ignored. Sou you can add comments and headings inside that page.
+When `MediaWiki:InternalWhitelist` is read by the extension, all lines that doesn't start with one or more wildcards (`* Page_name`) will be ignored. So, you can add comments and headings inside that page.
 
-The **Extension:PrivateWikiAccessControl** is equipped with the script **`PrivateWikiAccessControlManager.js`** that adds an menu item within the drop-down menu `<More>`. So you can add (or remove) any page to the whitelistst by click on that menu item. Note need to visit or reload some of the service pages discussed above in order to apply and see the changes.
+The **Extension:PrivateWikiAccessControl** is equipped with the script **`PrivateWikiAccessControlManager.js`** that adds an menu item within the drop-down menu `<More>`. So you can add (or remove) any page to the whitelistst by click on that menu item. Note, you need to visit or reload some of the service pages discussed above in order to apply and see the changes.
 
 ![Menu More Example](.readme-images/more-menu-item.png)
 
@@ -137,7 +137,7 @@ You can use `$wgPWACSettings['WhitelistWalk'] = 'add|remove';` within `LocalSett
 If you need to add some pages to the array `$wgWhitelistRead` manually, within `LocalSettings.php`, do it after the line:
 
 ````php
-$wgWhitelistRead = unserialize(file_get_contents("$IP/cache/PWAC_WhitelistPages.txt"));
+$wgWhitelistRead = unserialize(file_get_contents($wgCacheDirectory . "/PWAC_WhitelistPages.txt"));
 ```` 
 
 And use one of the following syntaxes:
@@ -150,7 +150,7 @@ $wgWhitelistRead[] = 'Page_1'; $wgWhitelistRead[] = 'Page_2';
 $wgWhitelistRead = array_merge($wgWhitelistRead, array( 'Page_1', 'Page_2', 'Page_etc'));
 ````
 
-### `MediaWiki:InternalWhitelistCAT` `>` `$IP/cache/PWAC_WhitelistPages.txt`
+### `MediaWiki:InternalWhitelistCAT` `>` `$wgCacheDirectory/PWAC_WhitelistPages.txt`
 
 **Whitelist category members.** You can use the following syntax in order to add certain categories within the message page `MediaWiki:InternalWhitelistCAT`:
 
@@ -162,21 +162,21 @@ $wgWhitelistRead = array_merge($wgWhitelistRead, array( 'Page_1', 'Page_2', 'Pag
 * [[:Категория:Example_3]]
 ````
 
-* It is preferable to use the (formatted) name of the NameSpace Category (Nr. 8) in the wiki's language. For example for Bulgarian use `Категория:` instead of `Category`.
+* It is preferable to use the (formatted) name of the NameSpace Category (Nr. 8) in the wiki's language. For example for Bulgarian use `Категория:` instead of `Category:`.
 
-If the page `MediaWiki:InternalWhitelistCAT` exist and it is not empty its content will be processed: the extension **Extension:PrivateWikiAccessControl** will get the members of each listed category (by using our Whitelist API) and will append these items (members, pages) to the array stored in the file `$IP/cache/PWAC_WhitelistPages.txt`. Thus, when the content of the file is assigned to the array `$wgWhitelistRead` (within `Localsettings.php` as it is shown above) all members of the listed categories will become whitelisted for public access.
+If the page `MediaWiki:InternalWhitelistCAT` exist and it is not empty its content will be processed: the extension **Extension:PrivateWikiAccessControl** will get the members of each listed category (by using our Whitelist API) and will append these items (members, pages) to the array stored in the file `$wgCacheDirectory/PWAC_WhitelistPages.txt`. Thus, when the content of the file is assigned to the array `$wgWhitelistRead` (within `Localsettings.php` as it is shown above) all members of the listed categories will become whitelisted for public access.
 
-When `MediaWiki:InternalWhitelistCAT` is read, all lines that doesn't start with one or more wildcards will be ignored (`* [[:Category:...]]`). Sou you can add comments and headings inside that page. 
+When `MediaWiki:InternalWhitelistCAT` is read, all lines that doesn't start with one or more wildcards will be ignored (`* [[:Category:...]]`). So, you can add comments and headings inside that page. 
 
-### `MediaWiki:InternalWhitelistCAT` `>` `$IP/cache/PWAC_WhitelistCat.txt`
+### `MediaWiki:InternalWhitelistCAT` `>` `$wgCacheDirectory/PWAC_WhitelistCat.txt`
 
-**Create a list of the Whitelist Categories.** The extension will save the list of the Whitelist Categories in the file `$IP/cache/PWAC_WhitelistCat.txt`. Then the content of this file is exported to the JavaScript environment. Then the script `PrivateWikiAccessControlManager.js` will check whether the current article belongs to a Whitelist Category and will indicate that.
+**Create a list of the Whitelist Categories.** The extension will save the list of the Whitelist Categories in the file `$wgCacheDirectory/PWAC_WhitelistCat.txt`. Then the content of this file is exported to the JavaScript environment. Then the script `PrivateWikiAccessControlManager.js` will check whether the current article belongs to a Whitelist Category and will indicate that.
 
-### `MediaWiki:InternalWhitelistAPI` `>` `$IP/cache/PWAC_WhitelistApi.txt`
+### `MediaWiki:InternalWhitelistAPI` `>` `$wgCacheDirectory/PWAC_WhitelistApi.txt`
 
-**Whitelist certain API requests.** The content of the page `MediaWiki:InternalWhitelistAPI` will be stored as serialized array in the file `$IP/cache/PWAC_WhitelistApi.txt`. These entries will be used by `PrivateWikiAccessControl.api.php` as filter of allowed API requests. How to redirect some requests to that API will be described in the section [Apache2 Setup](#apache2-setup).
+**Whitelist certain API requests.** The content of the page `MediaWiki:InternalWhitelistAPI` will be stored as serialized array in the file `$wgCacheDirectory/PWAC_WhitelistApi.txt`. These entries will be used by `PrivateWikiAccessControl.api.php` as filter of allowed API requests. How to redirect some requests to that API will be described in the section [Apache2 Setup](#apache2-setup).
 
-When `MediaWiki:InternalWhitelistAPI` is read, all lines that doesn't start with one or more wildcards will be ignored (`* action=query&...`). Sou you can add comments and headings inside that page.
+When `MediaWiki:InternalWhitelistAPI` is read, all lines that doesn't start with one or more wildcards will be ignored (`* action=query&...`). So, you can add comments and headings inside that page.
 
 You need to create the page `MediaWiki:InternalWhitelistAPI` manually. Otherwise, when the page is not created (or it is empty), all API requests will be allowed. You are able to allow all API requests also by adding the entry `* Allow All` in `MediaWiki:InternalWhitelistAPI`, this is good option for test purposes. Example content of `MediaWiki:InternalWhitelistAPI`:
 
@@ -212,7 +212,7 @@ These requests are used by PrivateWikiAccessControl Category members whitelist o
 
 ![MediaWiki:InternalWhitelist Example](.readme-images/internal-whitelist-api-example.png)
 
-By default `PrivateWikiAccessControl.api.php` will write the log file `$IP/cache/PWAC_Api.log` that contains all API requests made to it (the maximum size of the log file is 100 Kb). By the following command you can debug which API requests you want to whitelist.
+By default `PrivateWikiAccessControl.api.php` will write the log file `$wgCacheDirectory/PWAC_Api.log` that contains all API requests made to it (the maximum size of the log file is 100 Kb). By the following command you can debug which API requests you want to whitelist.
 
 ````bash
 tail -F ../../cache/PWAC_Api.log
@@ -226,7 +226,7 @@ If you want to disable logging you can add the following line in your `LocalSett
 
 ### `$wgPWAC[Settings Array]` `>` `PWAC_Conf.txt`
 
-**Make the configuration parameters accessible for our API:PrivateWikiAccessControl.** In the beginning of `PrivateWikiAccessControl.hooks.php` you can see all possible parameters that could be tweaked from within `LocalSettings.php`. At all, the parameters that you need to set are:
+**Make the configuration parameters accessible for PrivateWikiAccessControl.api.php.** In the beginning of `PrivateWikiAccessControl.hooks.php` you can see all possible parameters that could be tweaked from within `LocalSettings.php`. At all, the parameters that you need to set are:
 
 ````php
 // API:PrivateWikiAccessControl Settings
@@ -244,11 +244,44 @@ The options `$wgPWACSettings['WhitelistWalk']`, `$wgPWACSettings['WhitelistApiLo
 
 ![MediaWiki:InternalWhitelist Example](.readme-images/special-bots-example.png)
 
-The file `PWAC_Conf.txt` is used by `PrivateWikiAccessControl.api.php`, thus the API will get our settings. Note if wou want to change the path to the cache directory within `LocalSettings.php` (default: `$wgPWACSettings['CacheDir'] = "$IP/cache";`) you will need to edit the beginning of `PrivateWikiAccessControl.api.php`, otherwise the API can't get our settings.
+**Advanced Setup and Wiki family.** The file `PWAC_Conf.txt` is used by `PrivateWikiAccessControl.api.php`, thus the API will get our settings. 
 
+Note if you change the path to the cache directory within `LocalSettings.php` or it is [Wiki family](https://www.mediawiki.org/wiki/Manual:Wiki_family) you will need yo create the file 
+
+```php
+$IP/extensions/PrivateWikiAccessControl/PrivateWikiAccessControl.api.conf.php 
+```
+
+* `*.conf` and `*.conf.php` are members of `.gitignore`.
+
+* The default values that are automatically handled, otherwise you need to create the above file:
+
+    ```php
+    $wgPWACSettings['CacheDir'] = $wgCacheDirectory = "$IP/cache";
+    ```
+
+* Your `PrivateWikiAccessControl.api.conf.php` file could look like:
+    ```php
+    <?php
+    $wgPWAC = unserialize(file_get_contents(`/path/to/cache/' . '/PWAC_Conf.txt'));
+    ```
+
+* Or if it is Wiki family, probably you will need more complex setup - something slike this: 
+    ```php
+    <?php
+    // File: PrivateWikiAccessControl.api.conf.php
+    // Ref.: https://www.mediawiki.org/wiki/Manual:Wiki_family
+    if ( isset($_SERVER['SERVER_NAME']) && (preg_match('/^(.*)\.wiki-example.org$/', $_SERVER['SERVER_NAME'], $matches)) ) {
+        $wikiId = $matches[1]; // this must contain the subdomain, ex. 'bg', 'ru', 'en', etc.
+    } else {
+        die( "PWAC API: Invalid host name, can't determine wiki name" );
+        // Optional: Redirect to a "No such wiki" page.
+    }
+    $wgPWAC = unserialize(file_get_contents($_SERVER['DOCUMENT_ROOT'] . '/cache/' . 'dbprefix_' . $wikiId . '/PWAC_Conf.txt'));
+    ```
 ## API:PrivateWikiAccessControl
 
-`PrivateWikiAccessControl.api.php` reads its settings from the file `$IP/cache/PWAC_Conf.txt`, so as we said above it must know which is the location of that file.
+`PrivateWikiAccessControl.api.php` reads its settings from the file `$wgCacheDirectory/PWAC_Conf.txt`, so as we said above it must know which is the location of that file.
 
 When we call that API a GET request must be provided, otherwise it will redirect to the homepage of the wiki.
 
@@ -258,13 +291,13 @@ The API has two main functional parts:
 
    This functionality is triggered by the GET request parameter `imgIWL=`, that will be assigned within the Apache2's virtual host configuration. How to redirect files/images requests (of the anonymous users) to that API will be described in the section [Apache2 Setup](#apache2-setup).
 
-   It will show ony these the image types that are listed in the array `$imgIWL_ContentTypes`, that currently is hard-coded inside the API.
+   It will show ony these image types that are listed in the array `$imgIWL_ContentTypes`, that currently is hard-coded inside the API.
 
-   The API will provide also te resized versions of the whitelisted files.
+   The API will provide also te resized versions of the whitelisted files. There is a small bug described as note within the code.
 
-2. `PrivateWikiAccessControl.api.php` will allow access of the anonymous (not logged in) users to the MediaWiki's API, only in case the beginning of the requests is presented in `MediaWiki:InternalWhitelistAPI` (or when the value `Allow All` is provided in this page ot it is empty, as it is described above).
+2. `PrivateWikiAccessControl.api.php` will allow access of the anonymous (not logged in) users to the MediaWiki's API, only in case the beginning of the requests is presented in `MediaWiki:InternalWhitelistAPI` (or when the value `Allow All` is provided in this page or it is empty, as it is described above).
 
-   In order to determinate which api requests you need to Whitelist, you need to analyze `$IP/cache/PWAC_Api.log`, as it is described above, note the logging *disable* option must be turned off:
+   In order to determinate which api requests you need to Whitelist, you need to analyze `$wgCacheDirectory/PWAC_Api.log`, as it is described above, note the logging *disable* option must be turned off:
 
    ````php
    $wgPWACSettings['WhitelistApiLog'] = 'enable'; // or just comment-out the relevant line
@@ -277,12 +310,12 @@ The API has two main functional parts:
     $wgPWACSettings['WhitelistApiPass'] = '...the.password.of.the.bot...';
     ````
 
-    In oder to authenticate itself to the MediaWiki's API, our Whitelist API will write and use an authentication cookie in the file `$IP/cache/PWAC_Api.cookie`. For more details [MW:API:Login](https://www.mediawiki.org/wiki/API:Login).
+    In oder to authenticate itself to the MediaWiki's API, our Whitelist API will write and use an authentication cookie in the file `$wgCacheDirectory/PWAC_Api.cookie`. For more details [MW:API:Login](https://www.mediawiki.org/wiki/API:Login).
 
 ## Apache2 Setup
 
 The Apache's configuration must be made at the Virtual Host level, this is because the `Alias` directives, that are essential for our mechanism. Here is an example Apache's configuration:
-
+//// ТУК ДОБАВЯМ ЗА $wgCookiePrefix
 ````apache
 <VirtualHost ...>
 
@@ -291,11 +324,11 @@ The Apache's configuration must be made at the Virtual Host level, this is becau
     # Define variables for 'DocumentRoot' and the wiki's database name,
     # because thy will be used few times.
     #
-    Define wikiDocumentRoot "/var/www/your.wiki.document.root.directory"
-    Define wikiDBName "your_wiki_db_name"
+    Define wikiIdDocumentRoot "/var/www/your.wiki.document.root.directory"
+    Define wikiIdWgCookiePrefix "your_wiki_db_name"
 
-    DocumentRoot "${wikiDocumentRoot}"
-    <Directory "${wikiDocumentRoot}">
+    DocumentRoot "${wikiIdDocumentRoot}"
+    <Directory "${wikiIdDocumentRoot}">
             Options None FollowSymLinks
             AllowOverride All
             Require all granted
@@ -303,19 +336,22 @@ The Apache's configuration must be made at the Virtual Host level, this is becau
 
     # PrivateWikiAccessControl implementation
     #
-    # '${wikiDBName}' - is the database name of this wiki, it is used as cookie parameter.
+    # '${wikiIdWgCookiePrefix}' - if $wgCookiePrefix is not set in `LocalSettings.php` 
+    #                             the default value is the database name,
+    #                             or when it is Wiki family the name of the shard data base.
+    
     # 'action=(categorytree|query&format|query&titles)' - regex of whitelisted API requests.
     #
     # "/wl.api.php" - the url of Whitelist API where the anonymous user's requests will be redirected.
     # "/mw.api.php" - the url of MediaWiki's API where our Whitelist API will do its requests.
     #
-    # The expression '${wikiDBName}UserName=[a-zA-Z0-9]+;.*${wikiDBName}UserID=[1-9]+' will match
+    # The expression '${wikiIdWgCookiePrefix}UserName=[a-zA-Z0-9]+;.*${wikiIdWgCookiePrefix}UserID=[1-9]+' will match
     # to the cookie of the logged in users.
-    # So '!${wikiDBName}UserName=...' will match to the users that are not logged in.
+    # So '!${wikiIdWgCookiePrefix}UserName=...' will match to the users that are not logged in.
     # This is the main trigger of the request's redirections made by anonymous users.
 
-    Alias "/mw.api.php" "${wikiDocumentRoot}/api.php"
-    Alias "/wl.api.php" "${wikiDocumentRoot}/extensions/PrivateWikiAccessControl/PrivateWikiAccessControl.api.php"
+    Alias "/mw.api.php" "${wikiIdDocumentRoot}/api.php"
+    Alias "/wl.api.php" "${wikiIdDocumentRoot}/extensions/PrivateWikiAccessControl/PrivateWikiAccessControl.api.php"
 
     <ifModule mod_rewrite.c>
         RewriteEngine On
@@ -323,34 +359,32 @@ The Apache's configuration must be made at the Virtual Host level, this is becau
         # Redirect ony certain requests 'action=(categorytree|query&format|query&titles)...' to our Whitelist API.
         # This is additional security layer, that works independently of MediaWiki:InternalWhitelistAPI.
         #
-        RewriteCond %{HTTP_COOKIE} !(${wikiDBName}UserName=[a-zA-Z0-9]+;.*${wikiDBName}UserID=[1-9]+|${wikiDBName}UserID=[1-9]+;.*${wikiDBName}UserName=[a-zA-Z0-9]+) [NC]
+        RewriteCond %{HTTP_COOKIE} !(${wikiIdWgCookiePrefix}UserName=[a-zA-Z0-9]+;.*${wikiIdWgCookiePrefix}UserID=[1-9]+|${wikiIdWgCookiePrefix}UserID=[1-9]+;.*${wikiIdWgCookiePrefix}UserName=[a-zA-Z0-9]+) [NC]
         RewriteCond %{QUERY_STRING} (?:^|&)action=(categorytree|query&format|query&titles|opensearch&format|query&list=categorymembers)(?:$|&|=)
         RewriteRule "^/api\.php(.*)$" "/wl.api.php$1" [R]
 
         # Redirect all requests made by anonymous users to our Whitelist API.
         # Debug/test/permanent alternative of the above rules.
         #
-        #RewriteCond %{HTTP_COOKIE} !(${wikiDBName}UserName=[a-zA-Z0-9]+;.*${wikiDBName}UserID=[1-9]+|${wikiDBName}UserID=[1-9]+;.*${wikiDBName}UserName=[a-zA-Z0-9]+) [NC]
+        #RewriteCond %{HTTP_COOKIE} !(${wikiIdWgCookiePrefix}UserName=[a-zA-Z0-9]+;.*${wikiIdWgCookiePrefix}UserID=[1-9]+|${wikiIdWgCookiePrefix}UserID=[1-9]+;.*${wikiIdWgCookiePrefix}UserName=[a-zA-Z0-9]+) [NC]
         #RewriteRule "^/api\.php(.*)$" "/wl.api.php$1" [R]
 
         # If the request is for image/file and the requested flie/image belongs to the supported file list,
         # then redirect the request to our Whitelist API, by using GET request '?imgIWL=%{REQUEST_URI}'.
         #
         Define imgIWLAllowed "(ogg|pdf|zip|mpeg|wav|gif|jpeg|jpg|png|tiff|djvu|djv|svg|css|cvs|html|txt|xml|mpg|mpeg|mp4|mkv|avi|qt|wmv|webm)"
-        RewriteCond %{HTTP_COOKIE} !(${wikiDBName}UserName=[a-zA-Z0-9]+;.*${wikiDBName}UserID=[1-9]+|${wikiDBName}UserID=[1-9]+;.*${wikiDBName}UserName=[a-zA-Z0-9]+) [NC]
+        RewriteCond %{HTTP_COOKIE} !(${wikiIdWgCookiePrefix}UserName=[a-zA-Z0-9]+;.*${wikiIdWgCookiePrefix}UserID=[1-9]+|${wikiIdWgCookiePrefix}UserID=[1-9]+;.*${wikiIdWgCookiePrefix}UserName=[a-zA-Z0-9]+) [NC]
         RewriteCond %{REQUEST_URI} ^/images/
         RewriteRule "\.${imgIWLAllowed}$"  "/wl.api.php?imgIWL=%{REQUEST_URI}" [R]
     </ifModule>
 
-
     # Other configuration directives...
-
 </VirtualHost>
 ````
 
 All used directives and rules are well described within the example, so I think no more explanations are needed at this stage.
 
-If it is MediaWiki Family you need to create such configuration for each wiki. Also for `${wikiDBName}` you must setup the shared DB name, you may need to use the inspector tool of your browser in order to read the cookie for logged-in users and determinate the exact value of this variable.
+If it is MediaWiki family you need to create such configuration for each wiki. Also for `${wikiIdWgCookiePrefix}` you must setup the shared DB name, you may need to use the inspector tool of your browser in order to read the cookie for logged-in users and determinate the exact value of this variable.
 
 You can send requests directly to `/wl.api.php`. For example within my wikis I'm using [Extension:ExternalData](https://www.mediawiki.org/wiki/Extension:External_Data) in the following way:
 
@@ -363,18 +397,19 @@ Dimensions: {{#external_value:ext_width}} x {{#external_value:ext_height}}
 
 As it is explained above, the extension creates and uses the following files in the `$IP/cache` directory:
 
-1. `$IP/cache/PWAC_WhitelistPages.txt` that is based on `MediaWiki:InternalWhitelist` and `MediaWiki:InternalWhitelistCAT`.
+1. `$wgCacheDirectory/PWAC_WhitelistPages.txt` that is based on `MediaWiki:InternalWhitelist` and `MediaWiki:InternalWhitelistCAT`.
 
-2. `$IP/cache/PWAC_WhitelistCat.txt` that is based on `MediaWiki:InternalWhitelistCAT` and is used by the script `PrivateWikiAccessControlManager.js`.
+2. `$wgCacheDirectory/PWAC_WhitelistCat.txt` that is based on `MediaWiki:InternalWhitelistCAT` and is used by the script `PrivateWikiAccessControlManager.js`.
 
-3. `$IP/cache/PWAC_WhitelistApi.txt` that is based on `MediaWiki:InternalWhitelistAPI`.
+3. `$wgCacheDirectory/PWAC_WhitelistApi.txt` that is based on `MediaWiki:InternalWhitelistAPI`.
 
-4. `$IP/cache/PWAC_Conf.txt` that contains the configuration array `$wgPWAC[]` (`$wgPWACSettings[]`), used by our Whitelist API.
+4. `$wgCacheDirectory/PWAC_Conf.txt` that contains the configuration array `$wgPWAC[]` (`$wgPWACSettings[]`), used by our Whitelist API.
 
-5. `$IP/cache/PWAC_Api.cookie` used by our Whitelist API in order to do authentication to MediaWiki's API.
+5. `$wgCacheDirectory/PWAC_Api.cookie` used by our Whitelist API in order to do authentication to MediaWiki's API.
 
-6. `$IP/cache/PWAC_Api.log` debug log written by our Whitelist API.
+6. `$wgCacheDirectory/PWAC_Api.log` debug log written by our Whitelist API.
 
+7. `$IP/extensions/PrivateWikiAccessControl/PrivateWikiAccessControl.api.conf.php` - user's created file, that contans a custom location of `$wgCacheDirectory/PWAC_Conf.txt`.
 ## Hooks in use
 
 * [ResourceLoaderGetConfigVars](https://www.mediawiki.org/wiki/Manual:Hooks/ResourceLoaderGetConfigVars)
