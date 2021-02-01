@@ -49,14 +49,44 @@ if (isset($_GET['imgIWL'])) {
 
     //global $wgPWAC;
 
+    // https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
     $imgIWL_ContentTypes = [
-        'ogg' => 'application/ogg', 'pdf' => 'application/pdf', 'zip' => 'application/zip',
-        'mpeg' => 'audio/mpeg', 'wav' => 'audio/x-wav', 'gif' => 'image/gif', 'jpeg' => 'image/jpeg',
-        'jpg' => 'image/jpeg', 'png' => 'image/png', 'tiff' => 'image/tiff', 'djvu' => 'image/vnd.djvu',
-        'djv' => 'image/vnd.djvu', 'svg' => 'image/svg+xml', 'css' => 'text/css', 'cvs' => 'text/csv',
-        'html' => 'text/html', 'txt' => 'text/plain', 'xml' => 'text/xml', 'mpg' => 'video/mpeg',
-        'mpeg' => 'video/mpeg', 'mp4' => 'video/mp4', 'mkv' => 'video/mkv', 'avi' => 'video/avi',
-        'qt' => 'video/quicktime', 'wmv' => 'video/x-ms-wmv', 'webm' => 'video/webm',
+        'ogg' => 'application/ogg',
+        'pdf' => 'application/pdf',
+        'zip' => 'application/zip',
+        'mpeg' => 'audio/mpeg',
+        'wav' => 'audio/x-wav',
+        'gif' => 'image/gif',
+        'jpeg' => 'image/jpeg',
+        'jpg' => 'image/jpeg',
+        'png' => 'image/png',
+        'tiff' => 'image/tiff',
+        'djvu' => 'image/vnd.djvu',
+        'djv' => 'image/vnd.djvu',
+        'svg' => 'image/svg+xml',
+        'css' => 'text/css',
+        'cvs' => 'text/csv',
+        'html' => 'text/html',
+        'txt' => 'text/plain',
+        'xml' => 'text/xml',
+        'mpg' => 'video/mpeg',
+        'mpeg' => 'video/mpeg',
+        'mp4' => 'video/mp4',
+        'mp3' => 'audio/mpeg',
+        'mkv' => 'video/mkv',
+        'avi' => 'video/avi',
+        'qt' => 'video/quicktime',
+        'wmv' => 'video/x-ms-wmv',
+        'webm' => 'video/webm',
+        'xls' => 'application/vnd.ms-excel',
+        'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'doc' => 'application/msword',
+        'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'ppt' => 'application/vnd.ms-powerpoint',
+        'pptx' => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        'odp' => 'application/vnd.oasis.opendocument.presentation',
+        'ods' => 'application/vnd.oasis.opendocument.spreadsheet',
+        'odt' => 'application/vnd.oasis.opendocument.text'
     ];
 
     $imgIWL_Img  = $_GET['imgIWL'];
@@ -96,12 +126,15 @@ if (isset($_GET['imgIWL'])) {
     // Provide the requested image or its resized version
     if (preg_grep("/$imgIWL_Name/", $wgWhitelistRead) || ($imgIWL_Name_OriginalFile)) {
         header('Content-type: ' . $imgIWL_Type);
+        header('Content-Disposition: filename="' . $imgIWL_Name . '"');
         readfile($imgIWL_File);
     } else {
         header('Content-type: ' . 'image/jpeg');
         readfile('./images/access-denied.jpg');
     }
 
+    //$logLine = $_SERVER['REMOTE_ADDR'] .' : '. $_SERVER["HTTP_NAME"] . ' : ' . $_SERVER["HTTP_HOST"] .' : '. $_SERVER["HTTP_REFERER"] .' : '. gethostbyaddr ( $_SERVER['REMOTE_ADDR'] ) .' : '. $imgIWL_Name;
+	//file_put_contents('/tmp/pwac.image.request.log', $logLine  . "\n", FILE_APPEND | LOCK_EX);
     return true;
 }
 
