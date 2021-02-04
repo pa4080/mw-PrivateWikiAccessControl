@@ -1,2 +1,4 @@
 *.conf
 *.conf.php
+*.save
+*.swp
