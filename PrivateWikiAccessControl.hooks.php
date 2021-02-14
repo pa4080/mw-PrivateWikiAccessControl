@@ -176,12 +176,14 @@ class PrivateWikiAccessControlHooks {
                         $result = json_decode( $output, true );
 
                         // Whitelist each category member
-                        foreach( $result["query"]["categorymembers"] as $page ){
-                            $entry = $page["title"];
-                            // Apply some filters
-                            $entry = preg_replace("/[\s]/", "_", $entry);
-                            // Add the entry to whitelist
-                            $PWAC_WhitelistReadCurrent[] = $entry;
+                        if (isset($result["query"]["categorymembers"])) {
+                            foreach( $result["query"]["categorymembers"] as $page ) {
+                                $entry = $page["title"];
+                                // Apply some filters
+                                $entry = preg_replace("/[\s]/", "_", $entry);
+                                // Add the entry to whitelist
+                                $PWAC_WhitelistReadCurrent[] = $entry;
+                            }
                         }
                     }
                 }
