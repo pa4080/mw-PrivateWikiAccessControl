@@ -151,8 +151,8 @@ class PrivateWikiAccessControlHooks {
                         // Whitelist the category itself (probably this must be commentout?)
                         $PWAC_WhitelistReadCurrent[] = $entry;
 
-			// Prepare an array that contains the list of the Whitelist Categories (cat)
-			$PWAC_WhitelistCategoryList[] = $entry;
+                        // Prepare an array that contains the list of the Whitelist Categories (cat)
+                        $PWAC_WhitelistCategoryList[] = $entry;
 
                         // API Request in order to get a list with the category members
                         $params = [

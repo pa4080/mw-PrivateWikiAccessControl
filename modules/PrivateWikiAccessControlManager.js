@@ -36,18 +36,18 @@
 	// Get the list of the variables forwarded by PrivateWikiAccessControlHooks::onResourceLoaderGetConfigVars
 	var wgPWAC = mw.config.get('wgPWAC');
 
-        // Get the list oft the Whitelist Categories as String (replace _ with spaces); for Array add: .split(',');
-        if (wgPWAC.WhitelistCat) {
-		var whitelisCatList = wgPWAC.WhitelistCat.replace(/_/g, ' ');
-	}
+    // Get the list oft the Whitelist Categories as String (replace _ with spaces); for Array add: .split(',');
+    if (wgPWAC.WhitelistCat) {
+        var whitelisCatList = wgPWAC.WhitelistCat.replace(/_/g, ' ');
+    }
 
-        var internalWhitelistArticleName = wgPWAC.WhitelistPages;
+    var internalWhitelistArticleName = wgPWAC.WhitelistPages;
 
 	var currentPageName = mw.config.get('wgPageName');
 	var currentPageCategories = mw.config.get('wgCategories');
 	var currentUserLanguage = mw.config.get('wgUserLanguage');
-        var nameOfCategoryNS = mw.config.get('wgFormattedNamespaces')[14]; // Category in the wiki's language
-        var nameOfMediaWikiNS = mw.config.get('wgFormattedNamespaces')[8]; // MediaWiki in the wiki's language
+    var nameOfCategoryNS = mw.config.get('wgFormattedNamespaces')[14]; // Category in the wiki's language
+    var nameOfMediaWikiNS = mw.config.get('wgFormattedNamespaces')[8]; // MediaWiki in the wiki's language
 	var whitelisPageURI = mw.config.get('wgArticlePath').replace('$1', nameOfMediaWikiNS + ':' + internalWhitelistArticleName + '?action=raw'); //.replace('$1', 'MediaWiki:InternalWhitelist?action=raw');
 
 	// If the action is 'view' and the user is logged in, then run the MAIN FUNCTION.
@@ -68,36 +68,43 @@
 	function isWhitelisted() {
 		$.ajaxSetup({ cache: false });
 
-		// Test whether the article belongs to a Whitelist Category,based on the list exported by the extension.
+        // Test whether the article (current page) is a category that belongs to the Whitelist Category list
+        // There is a relevant line at hooks.php, find the comment: Whitelist the category itself (probably this must be commentout?)
+        var currentPageNameCatTest = currentPageName.replace(/_/g, ' ');
+        if (whitelisCatList.indexOf(currentPageNameCatTest + ',') !== -1) currentPageNameInWhitelistCat = true;
+
+		// Test whether the article belongs to a Whitelist Category, based on the list exported by the extension.
 		// This is an alternative of the $.get(mw.Api()) request used by the other condition, which updates the values more dynamically.
-		currentPageCategories.forEach( function(category) {
-			if (whitelisCatList.indexOf(nameOfCategoryNS + ':' + category + ',') !== -1) currentPageNameInWhitelistCat = true;
-		});
+        if ( currentPageNameInWhitelistCat !== true ) {
+    		currentPageCategories.forEach( function(category) {
+	    		if (whitelisCatList.indexOf(nameOfCategoryNS + ':' + category + ',') !== -1) currentPageNameInWhitelistCat = true;
+		    });
+        }
 
-		if (currentPageNameInWhitelistCat === true) {
-			publicPageMenuItemCat();
-			// while the article belongs to a Whitelist Category
-                        // and it is automatically whitelisted, we do not need click function here
-		} else {
-			$.get(whitelisPageURI, function(data){
-				if (data.includes(currentPageNameInWhitelistEntry) === true) {
-					publicPageMenuItem();
+        if (currentPageNameInWhitelistCat === true) {
+            publicPageMenuItemCat();
+            // while the article belongs to a Whitelist Category
+            // and it is automatically whitelisted, we do not need click function here
+        } else {
+            $.get(whitelisPageURI, function(data){
+            if (data.includes(currentPageNameInWhitelistEntry) === true) {
+                publicPageMenuItem();
 
-					$(whitelistMenuItem).click(function () {
-						removeFromWhitelist();
-						privatePageMenuItem();
-						window.location.reload(true); // Avoid some confusions
-					});
-				} else {
-					privatePageMenuItem();
+                $(whitelistMenuItem).click(function () {
+                    removeFromWhitelist();
+                    privatePageMenuItem();
+                    window.location.reload(true); // Avoid some confusions
+				});
+            } else {
+                privatePageMenuItem();
 
-					$(whitelistMenuItem).click(function () {
-						addToWhitelist();
-						publicPageMenuItem();
-						window.location.reload(true); // Avoid some confusions
-					});
-				}
-			});
+                $(whitelistMenuItem).click(function () {
+                    addToWhitelist();
+                    publicPageMenuItem();
+                    window.location.reload(true); // Avoid some confusions
+                });
+            }
+    });
 		}
 	}
 
@@ -199,6 +206,5 @@
 				console.log(data);
 			});
 		});
-	}
-
+    }
 }(mediaWiki, jQuery));
