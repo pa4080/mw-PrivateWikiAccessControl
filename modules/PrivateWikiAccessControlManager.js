@@ -5,10 +5,10 @@
  * @home      https://github.com/pa4080/mw-PrivateWikiAccessControl
  *
  * This file is a part of the MediaWiki Extension:PrivateWikiAccessControl.
- * 
+ *
  * This script adds a page to MediaWiki:InternalWhitelist or remove it via a button in the dropdown toolbar 'More'.
  * The messages are currently available languages: En, Bg, Ru.
- * 
+ *
  * PrivateWikiAccessControl project is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -48,7 +48,8 @@
     var currentUserLanguage = mw.config.get('wgUserLanguage');
     var nameOfCategoryNS = mw.config.get('wgFormattedNamespaces')[14]; // Category in the wiki's language
     var nameOfMediaWikiNS = mw.config.get('wgFormattedNamespaces')[8]; // MediaWiki in the wiki's language
-    var whitelisPageURI = mw.config.get('wgArticlePath').replace('$1', nameOfMediaWikiNS + ':' + internalWhitelistArticleName + '?action=raw'); //.replace('$1', 'MediaWiki:InternalWhitelist?action=raw');
+    var whitelisPageURI = mw.config.get('wgArticlePath').replace('$1', nameOfMediaWikiNS + ':' + internalWhitelistArticleName); //.replace('$1', 'MediaWiki:InternalWhitelist?action=raw');
+    var whitelisPageURIraw = whitelisPageURI + '?action=raw';
 
     // If the action is 'view' and the user is logged in, then run the MAIN FUNCTION.
     if (mw.config.get('wgAction') === 'view' && mw.config.get( 'wgUserId' ) !== null) {
@@ -66,9 +67,14 @@
 
     // This is the main function.
     function isWhitelisted() {
-        // This breaks Extension:Translate
-        // If we really need it we could check does the <body> has not class 'mw-special-Translate'
-        //$.ajaxSetup({ cache: false });
+        // https://www.javascripttutorial.net/dom/css/check-if-an-element-contains-a-class/
+        const body = document.querySelector('body');
+        if ( body.classList.contains( 'mw-special-Translate' ) ) {
+            console.log( "The Extension:PrivateAccessControl's Manager JavaScript is disabled at Specioal:Translate." );
+            return;
+        } else {
+            $.ajaxSetup({ cache: false });
+        }
 
         // Test whether the article (current page) is a category that belongs to the Whitelist Category list
         // There is a relevant line at hooks.php, find the comment: Whitelist the category itself (probably this must be commentout?)
@@ -88,14 +94,15 @@
             // while the article belongs to a Whitelist Category
             // and it is automatically whitelisted, we do not need click function here
         } else {
-            $.get(whitelisPageURI, function(data){
+            $.get(whitelisPageURIraw, function(data){
                 if (data.includes(currentPageNameInWhitelistEntry) === true) {
                     publicPageMenuItem();
 
                     $(whitelistMenuItem).click(function () {
                         removeFromWhitelist();
                         privatePageMenuItem();
-                        window.location.reload(true); // Avoid some confusions
+                        //whitelisRebuild();
+                        window.location.reload(true); // Avoid some confusions (included in the above function)
                     });
                 } else {
                     privatePageMenuItem();
@@ -103,7 +110,8 @@
                     $(whitelistMenuItem).click(function () {
                         addToWhitelist();
                         publicPageMenuItem();
-                        window.location.reload(true); // Avoid some confusions
+                        //whitelisRebuild();
+                        window.location.reload(true); // Avoid some confusions (included in the above function)
                     });
                 }
             });
@@ -144,7 +152,7 @@
     }
 
     function addToWhitelist() {
-        $.get(whitelisPageURI, function(data){
+        $.get(whitelisPageURIraw, function( data ){
             if (data.includes(currentPageNameInWhitelistEntry) === false) {
                 var params = {
                     action: 'edit',
@@ -164,7 +172,7 @@
     }
 
     function removeFromWhitelist() {
-        $.get(whitelisPageURI, function(data){
+        $.get(whitelisPageURIraw, function( data ){
             // Catch all cases: if the entry is found one or many times,
             // at the beginning, at the end or at the middle of the list.
             // Also when the syntaxis of the blocks is correct or not.
@@ -208,5 +216,38 @@
                 console.log(data);
             });
         });
+    }
+
+    // Doesn't work at the moment
+    function whitelisRebuild() {
+        // Rebuld the file $wgPWAC['WhitelistPagesFile'],
+        // by acces with false cache the page MediaWiki:InternalWhitelist
+
+        // https://stackoverflow.com/questions/5299646/javascript-how-to-fetch-the-content-of-a-web-page
+        // https://stackoverflow.com/questions/22356025/force-cache-control-no-cache-in-chrome-via-xmlhttprequest-on-f5-reload
+        // https://xhr.spec.whatwg.org/#dom-xmlhttprequest-setrequestheader
+        var req = new XMLHttpRequest();
+
+        req.open( 'GET', whitelisPageURI, false );
+        req.setRequestHeader('Cache-Control', 'no-cache, no-store, max-age=0');
+        req.setRequestHeader('Pragma', 'no-cache');
+        req.send( null );
+
+        if( req.status == 200 ) {
+           console.log(req.responseText);
+           //window.location.reload( true ); // Avoid some confusions
+        }
+        /**
+        var params = {
+            action: 'purge',
+            titles: nameOfMediaWikiNS + ':' + internalWhitelistArticleName,
+            format: 'json'
+        },
+        api = new mw.Api();
+
+        api.post( params ).done( function ( data ) {
+            console.log( data );
+        } );
+        **/
     }
 }(mediaWiki, jQuery));
